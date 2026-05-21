@@ -33,7 +33,7 @@
 		4061637B2F98F25E008F3A80 /* Exceptions for "TheGoodCorner" folder in "TheGoodCorner" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Core/Info.plist,
 			);
 			target = 4061630C2F98EFCC008F3A80 /* TheGoodCorner */;
 		};
