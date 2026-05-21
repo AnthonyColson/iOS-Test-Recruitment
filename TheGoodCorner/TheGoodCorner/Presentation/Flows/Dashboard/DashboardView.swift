@@ -1,11 +1,10 @@
 import SwiftUI
 
-struct ContentView: View {
-    #if DEBUG
-    @State private var isShowcasePresented = false
-    #endif
+struct DashbaordView: View {
+    @EnvironmentObject private var router: Router<AppRoute>
 
     var body: some View {
+        
         NavigationStack {
             VStack {
                 Image(systemName: "globe")
@@ -18,7 +17,7 @@ struct ContentView: View {
                 #if DEBUG
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        isShowcasePresented = true
+                        router.navigate(to: .showcase, mode: .sheet)
                     } label: {
                         Image(systemName: "paintpalette")
                     }
@@ -26,15 +25,10 @@ struct ContentView: View {
                 }
                 #endif
             }
-            #if DEBUG
-            .sheet(isPresented: $isShowcasePresented) {
-                DesignSystemShowcaseView()
-            }
-            #endif
         }
     }
 }
 
 #Preview {
-    ContentView()
+    DashbaordView()
 }
