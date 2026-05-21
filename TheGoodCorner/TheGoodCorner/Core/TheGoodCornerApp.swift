@@ -4,7 +4,9 @@ import SwiftUI
 struct TheGoodCornerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RouterView(Router<AppRoute>()) {
+                DashbaordView()
+            }
         }
     }
 }
