@@ -34,7 +34,7 @@ public final class RequestBuilder: RequestBuilderProtocol {
         let path = getPath(from: endpoint.path)
         let url = baseURL.appending(path)
         
-        guard var urlComponents = URLComponents(string: url) else { throw NSError(domain: "200", code: 201) }
+        guard var urlComponents = URLComponents(string: url) else { throw NetworkError.APIRequest.couldNotCreateRequest() }
         
         var urlQueryItems = [URLQueryItem]()
         
@@ -50,7 +50,7 @@ public final class RequestBuilder: RequestBuilderProtocol {
         
         urlComponents.queryItems = !urlQueryItems.isEmpty ? urlQueryItems : nil
         
-        guard let urlUnwrap = urlComponents.url else { throw NSError(domain: "", code: 200) }
+        guard let urlUnwrap = urlComponents.url else { throw NetworkError.APIRequest.couldNotCreateRequest() }
         return urlUnwrap
     }
     
