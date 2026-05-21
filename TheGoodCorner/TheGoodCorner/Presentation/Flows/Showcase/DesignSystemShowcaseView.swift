@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-/// Visual reference for every atomic element of the design system.
-///
-/// Useful as a living style guide and as a manual visual-regression
-/// surface (toggle the preview between light and dark to check that
-/// every token adapts correctly).
 public struct DesignSystemShowcaseView: View {
     public init() {}
 
@@ -27,7 +22,6 @@ public struct DesignSystemShowcaseView: View {
             }
             .padding(Spacing.l)
         }
-        .background(AppColor.background.ignoresSafeArea())
     }
 
     // MARK: - Header
