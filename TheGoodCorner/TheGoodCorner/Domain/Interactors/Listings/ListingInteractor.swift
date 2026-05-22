@@ -8,6 +8,6 @@
 import Foundation
 
 protocol ListingsInteractor: Sendable {
-    func getListings(pagination:  (page: Int, limit: Int)?, query: String?) async throws -> Listings
+    func getListings(pagination:  (page: Int, limit: Int)?, query: String?) async throws -> ListingsPage
     func getCategories() async throws -> Categories
 }

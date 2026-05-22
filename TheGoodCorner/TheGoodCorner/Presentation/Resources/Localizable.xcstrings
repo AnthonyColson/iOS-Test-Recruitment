@@ -1,0 +1,158 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Atomic elements showcase" : {
+
+    },
+    "Category: %@" : {
+      "comment" : "Category label on a listing card. %@ is the category name.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégorie : %@"
+          }
+        }
+      }
+    },
+    "Design System" : {
+
+    },
+    "End of list" : {
+      "comment" : "Shown at the bottom of the listings grid when there is no more content to load.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin de la liste"
+          }
+        }
+      }
+    },
+    "Image failed to load" : {
+      "comment" : "Accessibility label when the AsyncImage fails without a specific error.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du chargement de l'image"
+          }
+        }
+      }
+    },
+    "Image failed to load: %@" : {
+      "comment" : "Accessibility label when the AsyncImage fails. %@ is the error description.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du chargement de l'image : %@"
+          }
+        }
+      }
+    },
+    "No image available" : {
+      "comment" : "Accessibility label for the empty/placeholder state of ImageComponent.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune image disponible"
+          }
+        }
+      }
+    },
+    "Open design system showcase" : {
+      "comment" : "Accessibility label for the debug-only toolbar button that opens the design system showcase.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir l'aperçu du design system"
+          }
+        }
+      }
+    },
+    "Retry" : {
+      "comment" : "Button label to retry a failed action (image load, network call…).",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        }
+      }
+    },
+    "Retry loading image" : {
+      "comment" : "Accessibility label for the retry button on a failed image.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer le chargement de l'image"
+          }
+        }
+      }
+    },
+    "The quick brown fox" : {
+
+    },
+    "There is an error on categories" : {
+      "comment" : "Error message when categories cannot be loaded.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue lors du chargement des catégories"
+          }
+        }
+      }
+    },
+    "There is an error on listing" : {
+      "comment" : "Error message when listings cannot be loaded.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue lors du chargement des annonces"
+          }
+        }
+      }
+    },
+    "Unable to load image" : {
+      "comment" : "Visible message shown on top of the failed-image placeholder.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de charger l'image"
+          }
+        }
+      }
+    },
+    "Urgent" : {
+      "comment" : "Accessibility label / spoken form of the urgent badge.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urgent"
+          }
+        }
+      }
+    },
+    "URGENT" : {
+      "comment" : "Badge shown on urgent listings.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URGENT"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

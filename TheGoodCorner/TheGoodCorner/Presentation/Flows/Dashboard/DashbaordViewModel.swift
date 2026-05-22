@@ -105,15 +105,13 @@ final class DashbaordViewModel: ObservableObject {
         }
     }
     
-    @MainActor func updateListCardItems(with listingItems: [Item], forReload: Bool) {
+    @MainActor func updateListCardItems(with listingItems: [ListingsItem], forReload: Bool) {
         var tmp: [ListingCardItem] = []
         listingItems.forEach { [weak self] elem in
             guard let self else { return }
             
             let category = self.allCategories[elem.categoryID]
-            let url = URL(string: elem.imagesURL.small)
-            
-            let listingCardItem = ListingCardItem(id: elem.id, imageURL: url, title: elem.title, price: elem.price, category: category, isUrgent: elem.isUrgent)
+            let listingCardItem = ListingCardItem(id: elem.id, imageURL: elem.imagesURL.small, title: elem.title, price: elem.price, category: category, isUrgent: elem.isUrgent)
             tmp.append(listingCardItem)
         }
         if forReload {

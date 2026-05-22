@@ -5,9 +5,7 @@ struct DashbaordView: View {
     @StateObject var viewModel: DashbaordViewModel
     
     init() {
-        let repository = ListingsRepositoryImpl()
-        let interactor = ListingInteractorImpl(repository: repository)
-        let viewModel = DashbaordViewModel(interactor: interactor)
+        let viewModel = ViewModelFactory.makeDashboardViewModel()
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     

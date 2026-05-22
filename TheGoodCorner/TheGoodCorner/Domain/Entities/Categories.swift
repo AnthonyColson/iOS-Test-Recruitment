@@ -16,11 +16,6 @@ struct CategoriesElement: Equatable, Hashable {
         self.id = id
         self.name = name
     }
-    
-    init(from dto: CategoriesElementDTO) {
-        self.id = dto.id
-        self.name = dto.name
-    }
 }
 
 typealias Categories = [Int: String]

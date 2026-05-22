@@ -11,7 +11,7 @@ import Foundation
 struct ListingsDTO: Decodable {
     let total, page, limit: Int
     let hasMore: Bool
-    let items: [ItemDTO]
+    let items: [ListingsItemDTO]
 
     enum CodingKeys: String, CodingKey {
         case total, page, limit
@@ -20,8 +20,8 @@ struct ListingsDTO: Decodable {
     }
 }
 
-// MARK: - ItemDTO
-struct ItemDTO: Decodable {
+// MARK: - ListingsItemDTO
+struct ListingsItemDTO: Decodable {
     let id, categoryID: Int
     let title, description: String
     let price: Int

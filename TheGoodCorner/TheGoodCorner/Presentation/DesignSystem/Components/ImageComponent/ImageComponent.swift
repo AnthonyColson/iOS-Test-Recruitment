@@ -101,8 +101,8 @@ public struct ImageComponent: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            error.map { "Image failed to load: \($0.localizedDescription)" }
-                ?? "Image failed to load"
+            error.map { String(localized: "Image failed to load: \($0.localizedDescription)") }
+                ?? String(localized: "Image failed to load")
         )
     }
 }

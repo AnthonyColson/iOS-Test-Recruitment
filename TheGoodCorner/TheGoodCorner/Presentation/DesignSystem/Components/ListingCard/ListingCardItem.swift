@@ -59,7 +59,7 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     public var formattedCategory: String? {
         if let category {
-            "Category: \(category)"
+            String(localized: "Category: \(category)")
         } else {
             nil
         }
@@ -69,7 +69,7 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     public var accessibilityDescription: String {
         var parts: [String] = []
-        if isUrgent { parts.append("Urgent") }
+        if isUrgent { parts.append(String(localized: "Urgent")) }
         parts.append(displayedTitle)
         parts.append(formattedPrice)
         if let formattedCategory {

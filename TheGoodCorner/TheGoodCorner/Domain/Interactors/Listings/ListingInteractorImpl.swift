@@ -19,9 +19,9 @@ final class ListingInteractorImpl: ListingsInteractor {
         self.repository = repository
     }
     
-    func getListings(pagination: (page: Int, limit: Int)?, query: String?) async throws -> Listings {
+    func getListings(pagination: (page: Int, limit: Int)?, query: String?) async throws -> ListingsPage {
         let dto = try await repository.getListings(pagination: pagination, query: query)
-        return Listings(from: dto)
+        return ListingsPage(from: dto)
     }
     
     func getCategories() async throws -> Categories {
