@@ -28,14 +28,19 @@ final class DashbaordViewModel: ObservableObject {
     
     // MARK: Properties
     
-    @Published var allCategories: Categories = [:]
-    @Published var listingCardItems: [ListingCardItem] = []
     @Published var selectedCategory: CategoriesElement? = nil
     @Published var categoriesState: CategoriesState = .loading
     @Published var listingState: ListingState = .loading
     
-    var currentPage = 1
-    var itemsShownOnPage = 20
+    private let itemsShownOnPage = 20
+    private var currentPage = 1
+    private var itemsAlreadyFetched = 0
+    private var deadline = Date().addingTimeInterval(30)
+    
+    var itemsTotal = 0
+
+    var allCategories: Categories = [:]
+    var listingCardItems: [ListingCardItem] = []
     
     // MARK: Init
     
@@ -62,6 +67,7 @@ final class DashbaordViewModel: ObservableObject {
     func loadItems() async {
         do {
             let listing = try await interactor.getListings(pagination: (page: currentPage, limit: itemsShownOnPage), query: nil)
+            itemsTotal = listing.total
             updateListCardItems(with: listing.items, forReload: false)
             listingState = .success
         } catch {
@@ -71,6 +77,7 @@ final class DashbaordViewModel: ObservableObject {
     
     func shouldTriggerReload(with selectedCategory: CategoriesElement) -> Bool {
         self.currentPage = 1
+        self.itemsAlreadyFetched = 0
         if self.selectedCategory?.id != selectedCategory.id {
             self.selectedCategory = selectedCategory
             return true
@@ -82,9 +89,15 @@ final class DashbaordViewModel: ObservableObject {
     
     @MainActor
     func reloadItems(with selectedCategory: CategoriesElement) async -> Bool {
+        if Date() > deadline || itemsAlreadyFetched >= itemsTotal {
+            listingState = .success
+            return false
+        }
+        
         do {
             listingState = .loading
             let listing = try await interactor.getListings(pagination: (page: currentPage, limit: itemsShownOnPage), query: nil)
+            itemsAlreadyFetched += listing.items.count
             listingCardItems = listingCardItems.filter { $0.category == selectedCategory.name }
             updateListCardItems(with: listing.items.filter { $0.categoryID == selectedCategory.id }, forReload: true)
             if listingCardItems.count < itemsShownOnPage  {
@@ -120,13 +133,19 @@ final class DashbaordViewModel: ObservableObject {
             listingCardItems = tmp
         }
     }
-}
-
-extension Array where Element: Identifiable {
-    mutating func appendUnique(contentsOf other: [Element]) {
-        var seen = Set(self.map(\.id))
-        for element in other where seen.insert(element.id).inserted {
-            append(element)
+    
+    @MainActor func tapOnCategory(with selectedCategory: CategoriesElement) async {
+        resetDeadLine()
+        if shouldTriggerReload(with: selectedCategory) {
+            while await reloadItems(with: selectedCategory) {
+                continue
+            }
+        } else {
+            await loadItems()
         }
+    }
+    
+    func resetDeadLine() {
+        deadline = Date().addingTimeInterval(30)
     }
 }

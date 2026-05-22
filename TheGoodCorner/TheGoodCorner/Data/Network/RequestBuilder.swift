@@ -21,8 +21,8 @@ public final class RequestBuilder: RequestBuilderProtocol {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.allHTTPHeaderFields = endpoint.headerParameters
         
-        if !endpoint.bodyParamaters.isEmpty {
-            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: endpoint.bodyParamaters, options: .sortedKeys)
+        if !endpoint.bodyParameters.isEmpty {
+            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: endpoint.bodyParameters, options: .sortedKeys)
         }
         
         urlRequest.httpMethod = endpoint.method.rawValue

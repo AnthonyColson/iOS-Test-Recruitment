@@ -57,7 +57,7 @@ public extension NetworkError.APIResponse {
         }
     }
     
-    var debugDeciption: String {
+    var debugDecription: String {
         switch self {
         case .statusCodeError(let code):
             "Backend respond with status code error: \(code)"
@@ -90,7 +90,7 @@ public extension NetworkError.APIRequest {
         }
     }
     
-    var debugDeciption: String {
+    var debugDecription: String {
         switch self {
         case .couldNotCreateRequest(let call):
             "Could not create request for API call from method: \(call.uppercased())"

@@ -1,5 +1,5 @@
 //
-//  ListingCardViewModel.swift
+//  ListingCardItem.swift
 //  TheGoodCorner
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -86,10 +86,5 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(imageURL)
-        hasher.combine(title)
-        hasher.combine(price)
-        hasher.combine(category)
-        hasher.combine(isUrgent)
     }
 }

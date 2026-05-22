@@ -4,6 +4,8 @@ struct DashbaordView: View {
     @EnvironmentObject private var router: Router<AppRoute>
     @StateObject var viewModel: DashbaordViewModel
     
+    @State private var currentReloadTask: Task<Void, Never>?
+    
     init() {
         let viewModel = ViewModelFactory.makeDashboardViewModel()
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -64,16 +66,11 @@ struct DashbaordView: View {
                             }
                             .onTapGesture { [weak viewModel] in
                                 guard let viewModel else { return }
-                                Task {
-                                    if viewModel.shouldTriggerReload(with: CategoriesElement(id: key, name: value)) {
-                                        while await viewModel.reloadItems(with: CategoriesElement(id: key, name: value)) {
-                                            continue
-                                        }
-                                    } else {
-                                        await viewModel.loadItems()
-                                    }
-                                    
-                                    
+                                
+                                currentReloadTask?.cancel()
+                                
+                                currentReloadTask = Task {
+                                    await viewModel.tapOnCategory(with: CategoriesElement(id: key, name: value))
                                 }
                             }
                     }
