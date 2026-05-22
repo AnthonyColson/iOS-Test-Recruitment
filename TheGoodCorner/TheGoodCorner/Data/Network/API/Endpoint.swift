@@ -35,20 +35,20 @@ public struct Endpoint {
     var method: HTTPMethodType
     var queryParameters: [String: Any]
     var headerParameters: [String: String]
-    var bodyParamaters: [String: Any?]
+    var bodyParameters: [String: Any?]
     var cachePolicy: NSURLRequest.CachePolicy
     
     init(path: EndpointPath,
          method: HTTPMethodType = .get,
          queryParameters: [String : Any] = [:],
          headerParameters: [String : String] = [:],
-         bodyParamaters: [String : Any?] = [:],
+         bodyParameters: [String : Any?] = [:],
          cachePolicy: NSURLRequest.CachePolicy = .useProtocolCachePolicy) {
         self.path = path
         self.method = method
         self.queryParameters = queryParameters
         self.headerParameters = headerParameters
-        self.bodyParamaters = bodyParamaters
+        self.bodyParameters = bodyParameters
         self.cachePolicy = cachePolicy
     }
 }

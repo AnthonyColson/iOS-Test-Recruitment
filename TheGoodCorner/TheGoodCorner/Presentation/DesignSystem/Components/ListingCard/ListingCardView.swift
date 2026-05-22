@@ -12,47 +12,53 @@ public struct ListingCardComponent: View {
 
     // MARK: - Dependencies
 
-    private let viewModel: ListingCardViewModel
+    private let item: ListingCardItem
+
+    @ScaledMetric(relativeTo: .body)     private var titleSize:    CGFloat = TypoSize.body
+    @ScaledMetric(relativeTo: .callout)  private var priceSize:    CGFloat = TypoSize.callout
+    @ScaledMetric(relativeTo: .caption)  private var captionSize:  CGFloat = TypoSize.caption
+    @ScaledMetric(relativeTo: .caption2) private var overlineSize: CGFloat = TypoSize.overline
 
     // MARK: - Init
 
-    public init(viewModel: ListingCardViewModel) {
-        self.viewModel = viewModel
+    public init(item: ListingCardItem) {
+        self.item = item
     }
-    
+
     // MARK: - Body
 
     public var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
             ImageComponent(
-                url: viewModel.imageURL,
-                contentMode: .fill,
+                url: item.imageURL,
                 cornerRadius: BorderRadius.s
             )
             .aspectRatio(1, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .overlay(alignment: .topLeading) {
-                if viewModel.shouldShowUrgentBadge {
+                if item.shouldShowUrgentBadge {
                     urgentBadge
                         .padding(Spacing.s)
                 }
             }
 
-            Text(viewModel.displayedTitle)
-                .font(Typo.bodyBold)
+            Text(item.displayedTitle)
+                .font(.system(size: titleSize, weight: TypoWeight.semibold))
                 .foregroundStyle(AppColor.textPrimary)
                 .lineLimit(2)
                 .truncationMode(.tail)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            Text(viewModel.formattedPrice)
-                .font(Typo.callout)
+            Text(item.formattedPrice)
+                .font(.system(size: priceSize, weight: TypoWeight.medium))
                 .foregroundStyle(AppColor.primary)
 
-            Text(viewModel.formattedDate)
-                .font(Typo.caption)
-                .foregroundStyle(AppColor.textSecondary)
+            if let formattedCategory = item.formattedCategory {
+                Text(formattedCategory)
+                    .font(.system(size: captionSize))
+                    .foregroundStyle(AppColor.textSecondary)
+            }
         }
         .padding(Spacing.s)
         .background(
@@ -63,16 +69,18 @@ public struct ListingCardComponent: View {
             RoundedRectangle(cornerRadius: BorderRadius.m)
                 .stroke(AppColor.border, lineWidth: BorderWidth.hairline)
         )
+        // Cap Dynamic Type so the card stays usable at accessibility sizes
+        // without breaking the two-up grid layout.
+        .dynamicTypeSize(.xSmall ... .accessibility2)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(viewModel.accessibilityDescription)
+        .accessibilityLabel(item.accessibilityDescription)
     }
 
     // MARK: - Urgent badge
 
     private var urgentBadge: some View {
         Text("URGENT")
-            .font(Typo.overline)
-            .fontWeight(.bold)
+            .font(.system(size: overlineSize, weight: TypoWeight.bold))
             .foregroundStyle(.white)
             .padding(.horizontal, Spacing.s)
             .padding(.vertical, Spacing.xxs)
@@ -96,37 +104,43 @@ public struct ListingCardComponent: View {
             spacing: Spacing.m
         ) {
             ListingCardComponent(
-                viewModel: ListingCardViewModel(
+                item: ListingCardItem(
+                    id: 100,
                     imageURL: URL(string: "https://picsum.photos/seed/a/400"),
                     title: "Vintage leather armchair in excellent condition",
-                    price: 249.90,
-                    date: Date(),
+                    price: 249,
+                    category: "house",
                     isUrgent: true
                 )
             )
             ListingCardComponent(
-                viewModel: ListingCardViewModel(
+                item: ListingCardItem(
+                    id: 101,
                     imageURL: URL(string: "https://picsum.photos/seed/b/400"),
                     title: "Bicycle",
                     price: 120,
-                    date: Date().addingTimeInterval(-86_400 * 3)
+                    category: "work",
+                    isUrgent: false
                 )
             )
             ListingCardComponent(
-                viewModel: ListingCardViewModel(
+                item: ListingCardItem(
+                    id: 102,
                     imageURL: URL(string: "https://picsum.photos/seed/c/400"),
                     title: "Macbook Pro 14\" M2 - barely used, original box included",
                     price: 1450,
-                    date: Date().addingTimeInterval(-86_400 * 10),
+                    category: "tech",
                     isUrgent: true
                 )
             )
             ListingCardComponent(
-                viewModel: ListingCardViewModel(
+                item: ListingCardItem(
+                    id: 103,
                     imageURL: nil,
                     title: "Wooden coffee table",
                     price: 60,
-                    date: Date().addingTimeInterval(-86_400 * 30)
+                    category: "tech",
+                    isUrgent: false
                 )
             )
         }

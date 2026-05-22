@@ -1,5 +1,5 @@
 //
-//  ListingCardViewModelTests.swift
+//  ListingCardItemTests.swift
 //  TheGoodCornerTests
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -9,14 +9,14 @@ import Testing
 import Foundation
 @testable import TheGoodCorner
 
-@Suite("ListingCardViewModelTests")
-final class ListingCardViewModelTests {
-    private var sut: ListingCardViewModel!
+@Suite("ListingCardItemTests")
+final class ListingCardItemTests {
+    private var sut: ListingCardItem!
 
     // MARK: - Fixtures
     
     init() {
-        self.sut = ListingCardViewModel.mocked(locale: Locale(identifier: "fr_FR"))
+        self.sut = ListingCardItem.mocked(locale: Locale(identifier: "fr_FR"))
     }
 
     // MARK: - Price formatting
@@ -28,7 +28,7 @@ final class ListingCardViewModelTests {
         ("ja_JP", "¥")
     ])
     func priceUsesExpectedCurrencySymbol(localeID: String, symbol: String) {
-        sut = ListingCardViewModel.mocked(price: 249.90, locale: Locale(identifier: localeID))
+        sut = ListingCardItem.mocked(price: 249, locale: Locale(identifier: localeID))
         #expect(sut.formattedPrice.contains(symbol))
     }
 
@@ -39,38 +39,8 @@ final class ListingCardViewModelTests {
         ("en_GB", ".")
     ])
     func priceUsesExpectedDecimalSeparator(localeID: String, separator: String) {
-        sut = ListingCardViewModel.mocked(price: 1234.50, locale: Locale(identifier: localeID))
+        sut = ListingCardItem.mocked(price: 1234, locale: Locale(identifier: localeID))
         #expect(sut.formattedPrice.contains(separator))
-    }
-
-    // MARK: - Date formatting
-
-    @Test(arguments: ["fr_FR", "en_US", "en_GB", "ja_JP", "de_DE"])
-    func dateContainsYearRegardlessOfLocale(localeID: String) {
-        sut = ListingCardViewModel.mocked(locale: Locale(identifier: localeID))
-        #expect(sut.formattedDate.contains("2026"))
-    }
-
-    @Test(arguments: [
-        ("en_US", "May", "21"),
-        ("fr_FR", "21", "mai")
-    ])
-    func dateOrdersTokensAccordingToLocale(
-        localeID: String,
-        firstToken: String,
-        secondToken: String
-    ) {
-        sut = ListingCardViewModel.mocked(locale: Locale(identifier: localeID))
-        let formatted = sut.formattedDate
-
-        guard
-            let firstRange = formatted.range(of: firstToken),
-            let secondRange = formatted.range(of: secondToken)
-        else {
-            Issue.record("Expected '\(firstToken)' and '\(secondToken)' in: \(formatted)")
-            return
-        }
-        #expect(firstRange.lowerBound < secondRange.lowerBound)
     }
 
     // MARK: - Title
@@ -83,7 +53,7 @@ final class ListingCardViewModelTests {
         ("Vintage  leather  chair",     "Vintage  leather  chair")
     ])
     func displayedTitleTrimsOnlyOuterWhitespace(input: String, expected: String) {
-        sut = ListingCardViewModel.mocked(title: input, locale: Locale(identifier: "en_US"))
+        sut = ListingCardItem.mocked(title: input, locale: Locale(identifier: "en_US"))
         #expect(sut.displayedTitle == expected)
     }
 
@@ -91,7 +61,7 @@ final class ListingCardViewModelTests {
 
     @Test(arguments: [true, false])
     func shouldShowUrgentBadgeReflectsIsUrgent(isUrgent: Bool) {
-        sut = ListingCardViewModel.mocked(isUrgent: isUrgent, locale: Locale(identifier: "en_US"))
+        sut = ListingCardItem.mocked(isUrgent: isUrgent, locale: Locale(identifier: "en_US"))
         #expect(sut.shouldShowUrgentBadge == isUrgent)
     }
 
@@ -105,7 +75,7 @@ final class ListingCardViewModelTests {
         isUrgent: Bool,
         shouldContainUrgent: Bool
     ) {
-        sut = ListingCardViewModel.mocked(isUrgent: isUrgent, locale: Locale(identifier: "en_US"))
+        sut = ListingCardItem.mocked(isUrgent: isUrgent, locale: Locale(identifier: "en_US"))
         #expect(sut.accessibilityDescription.contains("Urgent") == shouldContainUrgent)
     }
 
@@ -114,13 +84,13 @@ final class ListingCardViewModelTests {
             localeID: "en_US",
             title: "Vintage chair",
             isUrgent: false,
-            expected: ["Vintage chair", "$", "2026"]
+            expected: ["Vintage chair", "$", "test"]
         ),
         (
             localeID: "fr_FR",
             title: "Chaise vintage",
             isUrgent: true,
-            expected: ["Urgent", "Chaise vintage", "€", "mai"]
+            expected: ["Urgent", "Chaise vintage", "€", "test"]
         )
     ])
     func accessibilityDescriptionAggregatesAllRelevantInfo(
@@ -129,9 +99,10 @@ final class ListingCardViewModelTests {
         isUrgent: Bool,
         expected: [String]
     ) {
-        sut = ListingCardViewModel.mocked(
+        sut = ListingCardItem.mocked(
             title: title,
-            price: 249.90,
+            price: 249,
+            category: "test",
             isUrgent: isUrgent,
             locale: Locale(identifier: localeID)
         )
