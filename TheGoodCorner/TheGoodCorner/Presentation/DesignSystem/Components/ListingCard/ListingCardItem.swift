@@ -1,5 +1,5 @@
 //
-//  ListingCardItem.swift
+//  ListingCardIViewModel.swift
 //  TheGoodCorner
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class ListingCardItem: Equatable, Hashable, Identifiable  {
+public final class ListingCardIViewModel: Equatable, Hashable, Identifiable  {
 
     // MARK: - Inputs
 
@@ -83,7 +83,7 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     // MARK: - Equatable & Hashable
 
-    public static func == (lhs: ListingCardItem, rhs: ListingCardItem) -> Bool {
+    public static func == (lhs: ListingCardIViewModel, rhs: ListingCardIViewModel) -> Bool {
         return lhs.id == rhs.id
     }
 

@@ -12,7 +12,7 @@ public struct ListingCardComponent: View {
 
     // MARK: - Dependencies
 
-    private let item: ListingCardItem
+    private let item: ListingCardIViewModel
 
     @ScaledMetric(relativeTo: .body)     private var titleSize:    CGFloat = TypoSize.body
     @ScaledMetric(relativeTo: .callout)  private var priceSize:    CGFloat = TypoSize.callout
@@ -21,7 +21,7 @@ public struct ListingCardComponent: View {
 
     // MARK: - Init
 
-    public init(item: ListingCardItem) {
+    public init(item: ListingCardIViewModel) {
         self.item = item
     }
 
@@ -104,7 +104,7 @@ public struct ListingCardComponent: View {
             spacing: Spacing.m
         ) {
             ListingCardComponent(
-                item: ListingCardItem(
+                item: ListingCardIViewModel(
                     id: 100,
                     imagesURL: ImagesURL(small: nil, thumb: URL(string: "https://picsum.photos/seed/a/400")),
                     title: "Vintage leather armchair in excellent condition",
@@ -115,7 +115,7 @@ public struct ListingCardComponent: View {
                 )
             )
             ListingCardComponent(
-                item: ListingCardItem(
+                item: ListingCardIViewModel(
                     id: 101,
                     imagesURL: ImagesURL(small: URL(string: "https://picsum.photos/seed/a/400"), thumb: nil),
                     title: "Bicycle",

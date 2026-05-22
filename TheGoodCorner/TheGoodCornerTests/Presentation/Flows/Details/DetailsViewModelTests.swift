@@ -16,7 +16,7 @@ struct DetailsViewModelTests {
 
     @Test func passthroughPropertiesReflectTheUnderlyingItem() {
         let thumb = URL(string: "https://example.com/thumb.jpg")
-        let item = ListingCardItem.mocked(
+        let item = ListingCardIViewModel.mocked(
             imagesURL: ImagesURL(small: nil, thumb: thumb),
             title: "Chair",
             price: 99,
@@ -47,7 +47,7 @@ struct DetailsViewModelTests {
     ] as [(String?, String?)])
     func descriptionTrimsAndReturnsNilWhenEmpty(input: String?, expected: String?) {
         let sut = DetailsViewModel(
-            item: ListingCardItem.mocked(description: input)
+            item: ListingCardIViewModel.mocked(description: input)
         )
 
         #expect(sut.description == expected)
@@ -57,7 +57,7 @@ struct DetailsViewModelTests {
 
     @Test func titleTrimsLeadingAndTrailingWhitespace() {
         let sut = DetailsViewModel(
-            item: ListingCardItem.mocked(title: "   Vintage chair   ")
+            item: ListingCardIViewModel.mocked(title: "   Vintage chair   ")
         )
         #expect(sut.title == "Vintage chair")
     }
@@ -66,7 +66,7 @@ struct DetailsViewModelTests {
 
     @Test func accessibilityDescriptionAggregatesUrgentAndTitle() {
         let sut = DetailsViewModel(
-            item: ListingCardItem.mocked(title: "Chair", isUrgent: true)
+            item: ListingCardIViewModel.mocked(title: "Chair", isUrgent: true)
         )
         #expect(sut.accessibilityDescription.contains("Urgent"))
         #expect(sut.accessibilityDescription.contains("Chair"))

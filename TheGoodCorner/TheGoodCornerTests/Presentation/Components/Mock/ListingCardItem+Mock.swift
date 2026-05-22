@@ -1,5 +1,5 @@
 //
-//  ListingCardItem+Mock.swift
+//  ListingCardIViewModel+Mock.swift
 //  TheGoodCornerTests
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -8,7 +8,7 @@
 import Foundation
 @testable import TheGoodCorner
 
-extension ListingCardItem {
+extension ListingCardIViewModel {
     static func mocked(
         id: Int = 1,
         imagesURL: ImagesURL = ImagesURL(small: nil, thumb: nil),
@@ -18,8 +18,8 @@ extension ListingCardItem {
         category: String? = "Meuble",
         isUrgent: Bool = false,
         locale: Locale = Locale(identifier: "fr_FR")
-    ) -> ListingCardItem {
-        ListingCardItem(
+    ) -> ListingCardIViewModel {
+        ListingCardIViewModel(
             id: id,
             imagesURL: imagesURL,
             title: title,

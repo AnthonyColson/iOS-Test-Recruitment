@@ -11,11 +11,11 @@ final class DetailsViewModel {
 
     // MARK: - Inputs
 
-    private let item: ListingCardItem
+    private let item: ListingCardIViewModel
 
     // MARK: - Init
 
-    init(item: ListingCardItem) {
+    init(item: ListingCardIViewModel) {
         self.item = item
     }
 

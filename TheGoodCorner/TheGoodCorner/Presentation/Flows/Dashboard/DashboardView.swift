@@ -1,22 +1,19 @@
 import SwiftUI
 
-struct DashbaordView: View {
+struct DashboardView: View {
     @EnvironmentObject private var router: Router<AppRoute>
-    @StateObject var viewModel: DashbaordViewModel
-    
+    @StateObject var viewModel: DashboardViewModel
+
     @State private var currentReloadTask: Task<Void, Never>?
-    
-    init() {
-        let viewModel = ViewModelFactory.makeDashboardViewModel()
+
+    init(viewModel: DashboardViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: Spacing.l) {
-               categoriesList
-               gridView
-            }
+        VStack(spacing: Spacing.l) {
+           categoriesList
+           gridView
         }
         .task { [weak viewModel] in
             await viewModel?.loadData()
@@ -149,6 +146,16 @@ struct DashbaordView: View {
     }
 }
 
+struct DashboardViewLoader: View {
+    @EnvironmentObject private var factory: ViewModelFactory
+
+    var body: some View {
+        DashboardView(viewModel: factory.makeDashboardViewModel())
+    }
+}
+
 #Preview {
-    DashbaordView()
+    DashboardViewLoader()
+        .environmentObject(ViewModelFactory.live())
+        .environmentObject(Router<AppRoute>())
 }

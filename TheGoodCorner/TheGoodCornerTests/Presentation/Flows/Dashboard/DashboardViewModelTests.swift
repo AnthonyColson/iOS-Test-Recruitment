@@ -13,12 +13,12 @@ import Foundation
 @MainActor
 final class DashboardViewModelTests {
 
-    private var sut: DashbaordViewModel!
+    private var sut: DashboardViewModel!
     private var interactorSpy: ListingsInteractorSpy!
 
     init() {
         interactorSpy = ListingsInteractorSpy()
-        sut = DashbaordViewModel(interactor: interactorSpy)
+        sut = DashboardViewModel(interactor: interactorSpy)
     }
 
     // MARK: - Initial state
@@ -34,7 +34,7 @@ final class DashboardViewModelTests {
     // MARK: - loadData
 
     @Test(arguments: [
-        (false, false, DashbaordViewModel.CategoriesState.success, DashbaordViewModel.ListingState.success),
+        (false, false, DashboardViewModel.CategoriesState.success, DashboardViewModel.ListingState.success),
         (true,  false, .error,   .success),
         (false, true,  .success, .error),
         (true,  true,  .error,   .error),
@@ -42,8 +42,8 @@ final class DashboardViewModelTests {
     func loadDataTransitionsStatesAccordingToInteractorOutcomes(
         categoriesFail: Bool,
         listingsFail: Bool,
-        expectedCategoriesState: DashbaordViewModel.CategoriesState,
-        expectedListingState: DashbaordViewModel.ListingState
+        expectedCategoriesState: DashboardViewModel.CategoriesState,
+        expectedListingState: DashboardViewModel.ListingState
     ) async {
         // Given
         if categoriesFail {
@@ -113,15 +113,15 @@ final class DashboardViewModelTests {
     // MARK: - reloadItems
 
     @Test(arguments: [
-        (5,  true,  true,  DashbaordViewModel.ListingState.loading),
-        (5,  false, false, DashbaordViewModel.ListingState.success),
-        (20, true,  false, DashbaordViewModel.ListingState.success),
+        (5,  true,  true,  DashboardViewModel.ListingState.loading),
+        (5,  false, false, DashboardViewModel.ListingState.success),
+        (20, true,  false, DashboardViewModel.ListingState.success),
     ])
     func reloadItemsContinuationLogic(
         itemsCount: Int,
         hasMore: Bool,
         expectedShouldContinue: Bool,
-        expectedListingState: DashbaordViewModel.ListingState
+        expectedListingState: DashboardViewModel.ListingState
     ) async {
         // Given
         let items = (1...itemsCount).map { ListingsItem.mocked(id: $0, categoryID: 10) }

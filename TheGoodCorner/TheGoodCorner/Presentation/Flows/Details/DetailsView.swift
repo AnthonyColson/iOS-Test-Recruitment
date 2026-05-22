@@ -129,7 +129,7 @@ struct DetailsView: View {
 #Preview {
     DetailsView(
         viewModel: DetailsViewModel(
-            item: ListingCardItem(
+            item: ListingCardIViewModel(
                 id: 1,
                 imagesURL: ImagesURL(small: nil, thumb: URL(string: "https://picsum.photos/seed/a/400")),
                 title: "Vintage leather armchair in excellent condition",

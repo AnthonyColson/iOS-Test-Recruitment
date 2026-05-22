@@ -5,24 +5,39 @@
 //  Created by ANTHONY GIUNTA on 22/05/2026.
 //
 
+import Foundation
+import Combine
 
-final class ViewModelFactory {
-    private static let networkService: any NetworkerService = NetworkerServiceImpl()
-    
-    
-    static func makeListingRepository() -> any ListingsRepository {
-        ListingsRepositoryImpl(networkService: networkService)
-    }
-    
-    static func makeListingInteractor() -> any ListingsInteractor {
-        ListingInteractorImpl(repository: makeListingRepository())
-    }
-    
-    static func makeDashboardViewModel() -> DashbaordViewModel {
-        DashbaordViewModel(interactor: makeListingInteractor())
+final class ViewModelFactory: ObservableObject {
+
+    // MARK: - Dependencies
+
+    private let listingsInteractor: any ListingsInteractor
+
+    // MARK: - Init
+
+    init(listingsInteractor: any ListingsInteractor) {
+        self.listingsInteractor = listingsInteractor
     }
 
-    static func makeDetailsViewModel(item: ListingCardItem) -> DetailsViewModel {
+    // MARK: - View model builders
+
+    func makeDashboardViewModel() -> DashboardViewModel {
+        DashboardViewModel(interactor: listingsInteractor)
+    }
+
+    func makeDetailsViewModel(item: ListingCardIViewModel) -> DetailsViewModel {
         DetailsViewModel(item: item)
+    }
+}
+
+// MARK: - Production wiring
+
+extension ViewModelFactory {
+    static func live() -> ViewModelFactory {
+        let networkService = NetworkerServiceImpl()
+        let repository = ListingsRepositoryImpl(networkService: networkService)
+        let interactor = ListingInteractorImpl(repository: repository)
+        return ViewModelFactory(listingsInteractor: interactor)
     }
 }

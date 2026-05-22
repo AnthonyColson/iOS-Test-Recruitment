@@ -1,5 +1,5 @@
 //
-//  DashbaordViewModel.swift
+//  DashboardViewModel.swift
 //  TheGoodCorner
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-final class DashbaordViewModel: ObservableObject {
+final class DashboardViewModel: ObservableObject {
     
     enum CategoriesState {
         case loading
@@ -40,7 +40,7 @@ final class DashbaordViewModel: ObservableObject {
     var itemsTotal = 0
 
     var allCategories: Categories = [:]
-    var listingCardItems: [ListingCardItem] = []
+    var listingCardItems: [ListingCardIViewModel] = []
     
     // MARK: Init
     
@@ -52,6 +52,8 @@ final class DashbaordViewModel: ObservableObject {
     
     @MainActor
     func loadData() async {
+        guard listingCardItems.isEmpty else { return }
+        
         do {
             categoriesState = .loading
             allCategories = try await interactor.getCategories()
@@ -119,12 +121,12 @@ final class DashbaordViewModel: ObservableObject {
     }
     
     @MainActor func updateListCardItems(with listingItems: [ListingsItem], forReload: Bool) {
-        var tmp: [ListingCardItem] = []
+        var tmp: [ListingCardIViewModel] = []
         listingItems.forEach { [weak self] elem in
             guard let self else { return }
             
             let category = self.allCategories[elem.categoryID]
-            let listingCardItem = ListingCardItem(id: elem.id, imagesURL: elem.imagesURL, title: elem.title, description: elem.description, price: elem.price, category: category, isUrgent: elem.isUrgent)
+            let listingCardItem = ListingCardIViewModel(id: elem.id, imagesURL: elem.imagesURL, title: elem.title, description: elem.description, price: elem.price, category: category, isUrgent: elem.isUrgent)
             tmp.append(listingCardItem)
         }
         if forReload {
