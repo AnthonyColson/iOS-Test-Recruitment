@@ -7,34 +7,37 @@
 
 import Foundation
 
-public final class ListingCardViewModel {
+public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     // MARK: - Inputs
 
+    public let id: Int
     public let imageURL: URL?
     public let title: String
-    public let price: Double
-    public let date: Date
+    public let price: Int
+    public let category: String?
     public let isUrgent: Bool
 
     // MARK: - Dependencies
 
     private let locale: Locale
 
-    // MARK: - Init
+    // MARK: - Inits
 
     public init(
+        id: Int,
         imageURL: URL?,
         title: String,
-        price: Double,
-        date: Date,
-        isUrgent: Bool = false,
+        price: Int,
+        category: String?,
+        isUrgent: Bool,
         locale: Locale = .current
     ) {
+        self.id = id
         self.imageURL = imageURL
         self.title = title
         self.price = price
-        self.date = date
+        self.category = category
         self.isUrgent = isUrgent
         self.locale = locale
     }
@@ -54,12 +57,12 @@ public final class ListingCardViewModel {
         )
     }
 
-    public var formattedDate: String {
-        date.formatted(
-            .dateTime
-                .day().month().year()
-                .locale(locale)
-        )
+    public var formattedCategory: String? {
+        if let category {
+            "Category: \(category)"
+        } else {
+            nil
+        }
     }
 
     // MARK: - Accessibility
@@ -69,7 +72,24 @@ public final class ListingCardViewModel {
         if isUrgent { parts.append("Urgent") }
         parts.append(displayedTitle)
         parts.append(formattedPrice)
-        parts.append(formattedDate)
+        if let formattedCategory {
+            parts.append(formattedCategory)
+        }
         return parts.joined(separator: ", ")
+    }
+
+    // MARK: - Equatable & Hashable
+
+    public static func == (lhs: ListingCardItem, rhs: ListingCardItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(imageURL)
+        hasher.combine(title)
+        hasher.combine(price)
+        hasher.combine(category)
+        hasher.combine(isUrgent)
     }
 }

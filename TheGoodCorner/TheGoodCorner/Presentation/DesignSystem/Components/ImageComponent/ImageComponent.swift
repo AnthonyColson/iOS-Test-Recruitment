@@ -12,7 +12,6 @@ public struct ImageComponent: View {
     // MARK: - Inputs
 
     private let url: URL?
-    private let contentMode: ContentMode
     private let cornerRadius: CGFloat
 
     // MARK: - State
@@ -23,11 +22,9 @@ public struct ImageComponent: View {
 
     public init(
         url: URL?,
-        contentMode: ContentMode = .fill,
         cornerRadius: CGFloat = BorderRadius.s
     ) {
         self.url = url
-        self.contentMode = contentMode
         self.cornerRadius = cornerRadius
     }
 
@@ -50,11 +47,10 @@ public struct ImageComponent: View {
     private func content(for phase: AsyncImagePhase) -> some View {
         switch phase {
         case .empty:
-            loadingView
+            emptyView
         case .success(let image):
             image
                 .resizable()
-                .aspectRatio(contentMode: contentMode)
         case .failure(let error):
             errorView(error: error)
         @unknown default:
@@ -62,14 +58,17 @@ public struct ImageComponent: View {
         }
     }
 
-    // MARK: - Loading
+    // MARK: - Placeholder (missing image)
 
-    private var loadingView: some View {
+    private var emptyView: some View {
         ZStack {
             AppColor.surfaceMuted
-            ProgressView()
-                .tint(AppColor.textSecondary)
+            Image(systemName: "photo")
+                .font(.system(size: 32))
+                .foregroundStyle(AppColor.textDisabled)
+                .accessibilityHidden(true)
         }
+        .accessibilityLabel("No image available")
     }
 
     // MARK: - Error
