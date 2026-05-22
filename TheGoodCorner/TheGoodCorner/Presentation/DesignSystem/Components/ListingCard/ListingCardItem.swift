@@ -12,8 +12,9 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
     // MARK: - Inputs
 
     public let id: Int
-    public let imageURL: URL?
+    public let imagesURL: ImagesURL
     public let title: String
+    public let description: String?
     public let price: Int
     public let category: String?
     public let isUrgent: Bool
@@ -26,16 +27,18 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     public init(
         id: Int,
-        imageURL: URL?,
+        imagesURL: ImagesURL,
         title: String,
+        description: String?,
         price: Int,
         category: String?,
         isUrgent: Bool,
         locale: Locale = .current
     ) {
         self.id = id
-        self.imageURL = imageURL
+        self.imagesURL = imagesURL
         self.title = title
+        self.description = description
         self.price = price
         self.category = category
         self.isUrgent = isUrgent

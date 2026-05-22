@@ -21,4 +21,8 @@ final class ViewModelFactory {
     static func makeDashboardViewModel() -> DashbaordViewModel {
         DashbaordViewModel(interactor: makeListingInteractor())
     }
+
+    static func makeDetailsViewModel(item: ListingCardItem) -> DetailsViewModel {
+        DetailsViewModel(item: item)
+    }
 }

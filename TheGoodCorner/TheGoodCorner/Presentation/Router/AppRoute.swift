@@ -8,14 +8,16 @@
 import SwiftUI
 
 enum AppRoute: Route {
-    case details
+    case details(item: ListingCardItem)
     case showcase
 
     @ViewBuilder
     var view: some View {
         switch self {
-        case .details: EmptyView()
-        case .showcase: DesignSystemShowcaseView()
+        case .details(let item):
+            DetailsView(viewModel: ViewModelFactory.makeDetailsViewModel(item: item))
+        case .showcase:
+            DesignSystemShowcaseView()
         }
     }
 }

@@ -18,6 +18,28 @@
     "Design System" : {
 
     },
+    "Description" : {
+      "comment" : "Section header on the details page introducing the listing description.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        }
+      }
+    },
+    "Page Detail" : {
+      "comment" : "Navigation bar title of the listing details page.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détail de l'annonce"
+          }
+        }
+      }
+    },
     "End of list" : {
       "comment" : "Shown at the bottom of the listings grid when there is no more content to load.",
       "localizations" : {

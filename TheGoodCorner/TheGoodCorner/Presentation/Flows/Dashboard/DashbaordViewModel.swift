@@ -124,7 +124,7 @@ final class DashbaordViewModel: ObservableObject {
             guard let self else { return }
             
             let category = self.allCategories[elem.categoryID]
-            let listingCardItem = ListingCardItem(id: elem.id, imageURL: elem.imagesURL.small, title: elem.title, price: elem.price, category: category, isUrgent: elem.isUrgent)
+            let listingCardItem = ListingCardItem(id: elem.id, imagesURL: elem.imagesURL, title: elem.title, description: elem.description, price: elem.price, category: category, isUrgent: elem.isUrgent)
             tmp.append(listingCardItem)
         }
         if forReload {

@@ -18,10 +18,8 @@ struct DashbaordView: View {
                gridView
             }
         }
-        .onAppear {
-            Task { [weak viewModel] in
-                await viewModel?.loadData()
-            }
+        .task { [weak viewModel] in
+            await viewModel?.loadData()
         }
         .toolbar {
 #if DEBUG
@@ -116,6 +114,9 @@ struct DashbaordView: View {
                 ) {
                     ForEach(viewModel.listingCardItems, id: \.self) { item in
                         ListingCardComponent(item: item)
+                            .onTapGesture {
+                                router.navigate(to: .details(item: item))
+                            }
                     }
                 }
                 .padding(.horizontal, Spacing.m)
