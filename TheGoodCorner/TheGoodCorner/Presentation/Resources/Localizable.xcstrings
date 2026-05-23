@@ -15,8 +15,30 @@
         }
       }
     },
+    "Description" : {
+      "comment" : "Section header on the details page introducing the listing description.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        }
+      }
+    },
     "Design System" : {
 
+    },
+    "Double tap to filter listings by this category" : {
+      "comment" : "Accessibility hint on a category chip — read by VoiceOver after the label.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez deux fois pour filtrer les annonces par cette catégorie"
+          }
+        }
+      }
     },
     "End of list" : {
       "comment" : "Shown at the bottom of the listings grid when there is no more content to load.",
@@ -51,6 +73,20 @@
         }
       }
     },
+    "Key" : {
+      "extractionState" : "manual"
+    },
+    "Not selected" : {
+      "comment" : "Accessibility value announced for a non-selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non sélectionné"
+          }
+        }
+      }
+    },
     "No image available" : {
       "comment" : "Accessibility label for the empty/placeholder state of ImageComponent.",
       "localizations" : {
@@ -69,6 +105,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ouvrir l'aperçu du design system"
+          }
+        }
+      }
+    },
+    "Page Detail" : {
+      "comment" : "Navigation bar title of the listing details page.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détail de l'annonce"
           }
         }
       }
@@ -95,8 +142,31 @@
         }
       }
     },
+    "The list is empty" : {
+      "comment" : "For Emptty state on listing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La liste est vide"
+          }
+        }
+      }
+    },
     "The quick brown fox" : {
 
+    },
+    "Selected" : {
+      "comment" : "Accessibility value announced for a selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionné"
+          }
+        }
+      }
     },
     "There is an error on categories" : {
       "comment" : "Error message when categories cannot be loaded.",

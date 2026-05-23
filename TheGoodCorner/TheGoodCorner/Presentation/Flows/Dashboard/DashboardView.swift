@@ -1,26 +1,33 @@
 import SwiftUI
 
-struct DashbaordView: View {
+struct DashboardView: View {
     @EnvironmentObject private var router: Router<AppRoute>
-    @StateObject var viewModel: DashbaordViewModel
-    
+    @StateObject var viewModel: DashboardViewModel
+
     @State private var currentReloadTask: Task<Void, Never>?
-    
-    init() {
-        let viewModel = ViewModelFactory.makeDashboardViewModel()
+
+    init(viewModel: DashboardViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     var body: some View {
-        NavigationStack {
-            VStack(spacing: Spacing.l) {
-               categoriesList
-               gridView
-            }
+        VStack(spacing: Spacing.l) {
+            TextField(String(), text: $viewModel.searchText)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, Spacing.m)
+            categoriesList
+            gridView
         }
-        .onAppear {
-            Task { [weak viewModel] in
-                await viewModel?.loadData()
+        .task { [weak viewModel] in
+            await viewModel?.onAppear()
+        }
+        .onChange(of: viewModel.debouncedText) { [weak viewModel] _ in
+            guard let viewModel else { return }
+            
+            currentReloadTask?.cancel()
+            
+            currentReloadTask = Task {
+                await viewModel.searchItemsFromText()
             }
         }
         .toolbar {
@@ -59,18 +66,25 @@ struct DashbaordView: View {
                                 RoundedRectangle(cornerRadius: BorderRadius.m)
                                     .foregroundColor(key == viewModel.selectedCategory?.id ? AppColor.borderEmphasis : AppColor.border)
                             )
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel(value)
+                            .accessibilityValue(
+                                key == viewModel.selectedCategory?.id
+                                    ? Text("Selected")
+                                    : Text("Not selected")
+                            )
+                            .accessibilityAddTraits(
+                                key == viewModel.selectedCategory?.id ? [.isButton, .isSelected] : [.isButton]
+                            )
+                            .accessibilityHint("Double tap to filter listings by this category")
                             .dynamicTypeSize(...DynamicTypeSize.medium)
                             .accessibilityShowsLargeContentViewer {
                                 Text(value)
                                     .font(Typo.title1)
                             }
                             .onTapGesture { [weak viewModel] in
-                                guard let viewModel else { return }
-                                
-                                currentReloadTask?.cancel()
-                                
-                                currentReloadTask = Task {
-                                    await viewModel.tapOnCategory(with: CategoriesElement(id: key, name: value))
+                                Task {
+                                    await viewModel?.selectCategory(CategoriesElement(id: key, name: value))
                                 }
                             }
                     }
@@ -88,7 +102,7 @@ struct DashbaordView: View {
                     .font(Typo.callout)
                     .onTapGesture {
                         Task { [weak viewModel] in
-                            await viewModel?.loadData()
+                            await viewModel?.retry()
                         }
                     }
             }
@@ -105,6 +119,13 @@ struct DashbaordView: View {
                 ProgressView()
                 Spacer()
             }
+        case .empty:
+            VStack(alignment: .center) {
+                Spacer()
+                Text("The list is empty")
+                    .font(Typo.callout)
+                Spacer()
+            }
         case .success:
             ScrollView {
                 LazyVGrid(
@@ -114,8 +135,21 @@ struct DashbaordView: View {
                     ],
                     spacing: Spacing.m
                 ) {
-                    ForEach(viewModel.listingCardItems, id: \.self) { item in
+                    ForEach(Array(viewModel.listingCardItems.enumerated()), id: \.element.id) { index, item in
                         ListingCardComponent(item: item)
+                            .onTapGesture {
+                                router.navigate(to: .details(item: item))
+                            }
+                            .onAppear { [weak viewModel] in
+                                guard let viewModel else { return }
+                                if index % 2 == 0, index >= viewModel.listingCardItems.count - 4 {
+                                    currentReloadTask?.cancel()
+                                    
+                                    currentReloadTask = Task {
+                                        await viewModel.loadNextPage()
+                                    }
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal, Spacing.m)
@@ -138,7 +172,7 @@ struct DashbaordView: View {
                     .font(Typo.callout)
                     .onTapGesture {
                         Task { [weak viewModel] in
-                            await viewModel?.loadData()
+                            await viewModel?.retry()
                         }
                     }
                 
@@ -148,6 +182,16 @@ struct DashbaordView: View {
     }
 }
 
+struct DashboardViewLoader: View {
+    @EnvironmentObject private var factory: ViewModelFactory
+
+    var body: some View {
+        DashboardView(viewModel: factory.makeDashboardViewModel())
+    }
+}
+
 #Preview {
-    DashbaordView()
+    DashboardViewLoader()
+        .environmentObject(ViewModelFactory.live())
+        .environmentObject(Router<AppRoute>())
 }

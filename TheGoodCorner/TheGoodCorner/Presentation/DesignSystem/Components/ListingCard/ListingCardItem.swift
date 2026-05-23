@@ -1,5 +1,5 @@
 //
-//  ListingCardItem.swift
+//  ListingCardIViewModel.swift
 //  TheGoodCorner
 //
 //  Created by ANTHONY GIUNTA on 21/05/2026.
@@ -7,13 +7,14 @@
 
 import Foundation
 
-public final class ListingCardItem: Equatable, Hashable, Identifiable  {
+public final class ListingCardIViewModel: Equatable, Hashable, Identifiable  {
 
     // MARK: - Inputs
 
     public let id: Int
-    public let imageURL: URL?
+    public let imagesURL: ImagesURL
     public let title: String
+    public let description: String?
     public let price: Int
     public let category: String?
     public let isUrgent: Bool
@@ -26,16 +27,18 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     public init(
         id: Int,
-        imageURL: URL?,
+        imagesURL: ImagesURL,
         title: String,
+        description: String?,
         price: Int,
         category: String?,
         isUrgent: Bool,
         locale: Locale = .current
     ) {
         self.id = id
-        self.imageURL = imageURL
+        self.imagesURL = imagesURL
         self.title = title
+        self.description = description
         self.price = price
         self.category = category
         self.isUrgent = isUrgent
@@ -80,7 +83,7 @@ public final class ListingCardItem: Equatable, Hashable, Identifiable  {
 
     // MARK: - Equatable & Hashable
 
-    public static func == (lhs: ListingCardItem, rhs: ListingCardItem) -> Bool {
+    public static func == (lhs: ListingCardIViewModel, rhs: ListingCardIViewModel) -> Bool {
         return lhs.id == rhs.id
     }
 

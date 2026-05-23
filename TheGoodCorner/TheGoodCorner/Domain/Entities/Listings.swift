@@ -26,6 +26,6 @@ struct ListingsItem: Equatable, Hashable, Identifiable {
 
 // MARK: - ImagesURL
 public struct ImagesURL: Equatable, Hashable {
-    public let small: URL?
-    public let thumb: URL?
+    let small: URL?
+    let thumb: URL?
 }
