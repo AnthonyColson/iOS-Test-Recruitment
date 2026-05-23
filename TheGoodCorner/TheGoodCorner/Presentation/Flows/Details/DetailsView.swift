@@ -52,7 +52,6 @@ struct DetailsView: View {
             url: viewModel.imageURL,
             cornerRadius: BorderRadius.s
         )
-        .aspectRatio(1, contentMode: .fit)
         .overlay(alignment: .topLeading) {
             if viewModel.isUrgent {
                 urgentBadge

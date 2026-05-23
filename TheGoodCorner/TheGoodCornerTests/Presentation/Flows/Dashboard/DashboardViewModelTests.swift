@@ -24,14 +24,16 @@ final class DashboardViewModelTests {
     // MARK: - Initial state
 
     @Test func initialStateIsLoadingAndEmpty() {
+        // Then
         #expect(sut.categoriesState == .loading)
         #expect(sut.listingState == .loading)
         #expect(sut.selectedCategory == nil)
         #expect(sut.allCategories.isEmpty)
         #expect(sut.listingCardItems.isEmpty)
+        #expect(sut.isLoadingMore == false)
     }
 
-    // MARK: - loadData
+    // MARK: - onAppear
 
     @Test(arguments: [
         (false, false, DashboardViewModel.CategoriesState.success, DashboardViewModel.ListingState.success),
@@ -39,7 +41,7 @@ final class DashboardViewModelTests {
         (false, true,  .success, .error),
         (true,  true,  .error,   .error),
     ])
-    func loadDataTransitionsStatesAccordingToInteractorOutcomes(
+    func onAppearTransitionsStatesAccordingToInteractorOutcomes(
         categoriesFail: Bool,
         listingsFail: Bool,
         expectedCategoriesState: DashboardViewModel.CategoriesState,
@@ -51,27 +53,25 @@ final class DashboardViewModelTests {
         } else {
             interactorSpy.getCategoriesResponse = [10: "Meuble"]
         }
-
         if listingsFail {
             interactorSpy.getListingsError = NetworkError.APIResponse.unexpected
         } else {
-            interactorSpy.getListingsResponse = .mocked()
+            interactorSpy.getListingsResponse = .mocked(hasMore: false)
         }
 
         // When
-        await sut.loadData()
+        await sut.onAppear()
 
         // Then
         #expect(sut.categoriesState == expectedCategoriesState)
         #expect(sut.listingState == expectedListingState)
     }
 
-    // MARK: - loadItems mapping
-
-    @Test func loadItemsMapsListingsToCardItemsAndResolvesCategoryName() async {
+    @Test func onAppearMapsListingsToCardItemsAndResolvesCategoryName() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble", 20: "Sport"]
         interactorSpy.getListingsResponse = .mocked(
+            hasMore: false,
             items: [
                 .mocked(id: 1, categoryID: 10, title: "Chair"),
                 .mocked(id: 2, categoryID: 20, title: "Bike")
@@ -79,7 +79,7 @@ final class DashboardViewModelTests {
         )
 
         // When
-        await sut.loadData()
+        await sut.onAppear()
 
         // Then
         #expect(sut.listingCardItems.count == 2)
@@ -87,68 +87,155 @@ final class DashboardViewModelTests {
         #expect(sut.listingCardItems.first { $0.id == 2 }?.category == "Sport")
     }
 
-    // MARK: - shouldTriggerReload
-
-    @Test(arguments: [
-        // (preselectedSameAsTapped, expectedResult, expectedSelectionIsNil)
-        (false, true,  false),
-        (true,  false, true),
-    ])
-    func shouldTriggerReloadTogglesAccordingToCurrentSelection(
-        preselectSame: Bool,
-        expectedResult: Bool,
-        expectedSelectionIsNil: Bool
-    ) {
-        let category = CategoriesElement(id: 10, name: "Meuble")
-        if preselectSame {
-            _ = sut.shouldTriggerReload(with: category)
-        }
-
-        let result = sut.shouldTriggerReload(with: category)
-
-        #expect(result == expectedResult)
-        #expect((sut.selectedCategory == nil) == expectedSelectionIsNil)
-    }
-
-    // MARK: - reloadItems
-
-    @Test(arguments: [
-        (5,  true,  true,  DashboardViewModel.ListingState.loading),
-        (5,  false, false, DashboardViewModel.ListingState.success),
-        (20, true,  false, DashboardViewModel.ListingState.success),
-    ])
-    func reloadItemsContinuationLogic(
-        itemsCount: Int,
-        hasMore: Bool,
-        expectedShouldContinue: Bool,
-        expectedListingState: DashboardViewModel.ListingState
-    ) async {
+    @Test func onAppearIsIdempotentWhenItemsAlreadyLoaded() async {
         // Given
-        let items = (1...itemsCount).map { ListingsItem.mocked(id: $0, categoryID: 10) }
-        interactorSpy.getListingsResponse = .mocked(hasMore: hasMore, items: items)
-        let category = CategoriesElement(id: 10, name: "Meuble")
-        sut.itemsTotal = 20
-        sut.resetDeadLine()
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [.mocked()])
+        await sut.onAppear()
+        let initialCount = sut.listingCardItems.count
 
         // When
-        let shouldContinue = await sut.reloadItems(with: category)
+        await sut.onAppear()
 
         // Then
-        #expect(shouldContinue == expectedShouldContinue)
-        #expect(sut.listingState == expectedListingState)
+        #expect(sut.listingCardItems.count == initialCount)
     }
 
-    @Test func reloadItemsInteractorErrorReturnsFalseAndSetsErrorState() async {
+    @Test func onAppearWithNoItemsTransitionsListingToEmpty() async {
         // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+
+        // When
+        await sut.onAppear()
+
+        // Then
+        #expect(sut.listingState == .empty)
+        #expect(sut.listingCardItems.isEmpty)
+    }
+
+    // MARK: - selectCategory
+
+    @Test func selectCategoryStoresTheCategory() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+        let category = CategoriesElement(id: 10, name: "Meuble")
+
+        // When
+        await sut.selectCategory(category)
+
+        // Then
+        #expect(sut.selectedCategory == category)
+    }
+
+    @Test func selectCategoryTwiceTogglesItOff() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+        let category = CategoriesElement(id: 10, name: "Meuble")
+
+        // When
+        await sut.selectCategory(category)
+        await sut.selectCategory(category)
+
+        // Then
+        #expect(sut.selectedCategory == nil)
+    }
+
+    @Test func selectCategoryKeepsOnlyItemsMatchingTheCategory() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(
+            hasMore: false,
+            items: [
+                .mocked(id: 1, categoryID: 10),
+                .mocked(id: 2, categoryID: 10),
+                .mocked(id: 3, categoryID: 99),
+                .mocked(id: 4, categoryID: 99)
+            ]
+        )
+
+        // When
+        await sut.selectCategory(CategoriesElement(id: 10, name: "Meuble"))
+
+        // Then
+        #expect(sut.listingCardItems.count == 2)
+        #expect(sut.listingCardItems.allSatisfy { [1, 2].contains($0.id) })
+    }
+
+    @Test func selectCategoryResetsThePreviousResults() async {
+        // Given — initial load with 3 items in category 10
+        interactorSpy.getCategoriesResponse = [10: "Meuble", 20: "Sport"]
+        interactorSpy.getListingsResponse = .mocked(
+            hasMore: false,
+            items: (1...3).map { .mocked(id: $0, categoryID: 10) }
+        )
+        await sut.onAppear()
+        #expect(sut.listingCardItems.count == 3)
+
+        // When
+        await sut.selectCategory(CategoriesElement(id: 20, name: "Sport"))
+
+        // Then
+        #expect(sut.listingCardItems.isEmpty)
+        #expect(sut.listingState == .empty)
+    }
+
+    // MARK: - loadNextPage
+
+    @Test func loadNextPageAppendsNewItems() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(
+            hasMore: true,
+            items: (1...5).map { .mocked(id: $0, categoryID: 10) }
+        )
+        await sut.onAppear()
+        let initialCount = sut.listingCardItems.count
+
+        // When
+        interactorSpy.getListingsResponse = .mocked(
+            hasMore: false,
+            items: (100...105).map { .mocked(id: $0, categoryID: 10) }
+        )
+        await sut.loadNextPage()
+
+        // Then
+        #expect(sut.listingCardItems.count > initialCount)
+    }
+
+    @Test func loadNextPageIsNoOpWhenNoMorePages() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [.mocked()])
+        await sut.onAppear()
+        let countAfterFirstLoad = sut.listingCardItems.count
+
+        // When
+        await sut.loadNextPage()
+
+        // Then
+        #expect(sut.listingCardItems.count == countAfterFirstLoad)
+    }
+
+    @Test func loadNextPageSetsErrorStateOnFailure() async {
+        // Given
+        interactorSpy.getCategoriesResponse = [10: "Meuble"]
+        interactorSpy.getListingsResponse = .mocked(
+            hasMore: true,
+            items: (1...3).map { .mocked(id: $0, categoryID: 10) }
+        )
+        await sut.onAppear()
+        let countAfterFirstLoad = sut.listingCardItems.count
+
+        // When
+        interactorSpy.getListingsResponse = nil
         interactorSpy.getListingsError = NetworkError.APIResponse.unexpected
-        sut.itemsTotal = 20
-        sut.resetDeadLine()
-
-        // When
-        let shouldContinue = await sut.reloadItems(with: CategoriesElement(id: 10, name: "Meuble"))
+        await sut.loadNextPage()
 
         // Then
-        #expect(shouldContinue == false)
         #expect(sut.listingState == .error)
+        #expect(sut.listingCardItems.count == countAfterFirstLoad)
     }
 }

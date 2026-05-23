@@ -9,14 +9,26 @@ struct DashboardView: View {
     init(viewModel: DashboardViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     var body: some View {
         VStack(spacing: Spacing.l) {
-           categoriesList
-           gridView
+            TextField(String(), text: $viewModel.searchText)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, Spacing.m)
+            categoriesList
+            gridView
         }
         .task { [weak viewModel] in
-            await viewModel?.loadData()
+            await viewModel?.onAppear()
+        }
+        .onChange(of: viewModel.debouncedText) { [weak viewModel] _ in
+            guard let viewModel else { return }
+            
+            currentReloadTask?.cancel()
+            
+            currentReloadTask = Task {
+                await viewModel.searchItemsFromText()
+            }
         }
         .toolbar {
 #if DEBUG
@@ -54,18 +66,25 @@ struct DashboardView: View {
                                 RoundedRectangle(cornerRadius: BorderRadius.m)
                                     .foregroundColor(key == viewModel.selectedCategory?.id ? AppColor.borderEmphasis : AppColor.border)
                             )
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel(value)
+                            .accessibilityValue(
+                                key == viewModel.selectedCategory?.id
+                                    ? Text("Selected")
+                                    : Text("Not selected")
+                            )
+                            .accessibilityAddTraits(
+                                key == viewModel.selectedCategory?.id ? [.isButton, .isSelected] : [.isButton]
+                            )
+                            .accessibilityHint("Double tap to filter listings by this category")
                             .dynamicTypeSize(...DynamicTypeSize.medium)
                             .accessibilityShowsLargeContentViewer {
                                 Text(value)
                                     .font(Typo.title1)
                             }
                             .onTapGesture { [weak viewModel] in
-                                guard let viewModel else { return }
-                                
-                                currentReloadTask?.cancel()
-                                
-                                currentReloadTask = Task {
-                                    await viewModel.tapOnCategory(with: CategoriesElement(id: key, name: value))
+                                Task {
+                                    await viewModel?.selectCategory(CategoriesElement(id: key, name: value))
                                 }
                             }
                     }
@@ -83,7 +102,7 @@ struct DashboardView: View {
                     .font(Typo.callout)
                     .onTapGesture {
                         Task { [weak viewModel] in
-                            await viewModel?.loadData()
+                            await viewModel?.retry()
                         }
                     }
             }
@@ -100,6 +119,13 @@ struct DashboardView: View {
                 ProgressView()
                 Spacer()
             }
+        case .empty:
+            VStack(alignment: .center) {
+                Spacer()
+                Text("The list is empty")
+                    .font(Typo.callout)
+                Spacer()
+            }
         case .success:
             ScrollView {
                 LazyVGrid(
@@ -109,10 +135,20 @@ struct DashboardView: View {
                     ],
                     spacing: Spacing.m
                 ) {
-                    ForEach(viewModel.listingCardItems, id: \.self) { item in
+                    ForEach(Array(viewModel.listingCardItems.enumerated()), id: \.element.id) { index, item in
                         ListingCardComponent(item: item)
                             .onTapGesture {
                                 router.navigate(to: .details(item: item))
+                            }
+                            .onAppear { [weak viewModel] in
+                                guard let viewModel else { return }
+                                if index % 2 == 0, index >= viewModel.listingCardItems.count - 4 {
+                                    currentReloadTask?.cancel()
+                                    
+                                    currentReloadTask = Task {
+                                        await viewModel.loadNextPage()
+                                    }
+                                }
                             }
                     }
                 }
@@ -136,7 +172,7 @@ struct DashboardView: View {
                     .font(Typo.callout)
                     .onTapGesture {
                         Task { [weak viewModel] in
-                            await viewModel?.loadData()
+                            await viewModel?.retry()
                         }
                     }
                 
