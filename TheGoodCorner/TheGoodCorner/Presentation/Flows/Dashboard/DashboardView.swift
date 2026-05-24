@@ -66,11 +66,7 @@ struct DashboardView: View {
     var categoriesList: some View {
         switch viewModel.categoriesState {
         case .loading:
-            VStack(alignment: .center) {
-                Spacer()
-                ProgressView()
-                Spacer()
-            }
+            ProgressView()
         case .success:
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
@@ -161,7 +157,7 @@ struct DashboardView: View {
                                         router.navigate(to: .details(item: viewModel.listingCardItems[index + 1]))
                                     }
                             } else {
-                                Color.clear  // garde l'alignement quand le nombre est impair
+                                Color.clear  // keep space when odd
                             }
                         }
                         .onAppear {
@@ -174,6 +170,10 @@ struct DashboardView: View {
                             }
                         }
                         .listRowSeparator(.hidden)
+                    }
+                    
+                    if viewModel.listingState == .loading && !viewModel.listingCardItems.isEmpty {
+                        ProgressView()
                     }
                     
                     Text("End of list")
