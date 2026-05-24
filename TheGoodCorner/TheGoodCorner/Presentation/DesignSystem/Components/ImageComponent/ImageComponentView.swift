@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-public struct ImageComponent: View {
+public struct ImageComponentView: View {
+    
+    @StateObject private var loader = ImageComponentViewModel()
 
     // MARK: - Inputs
 
@@ -29,32 +31,28 @@ public struct ImageComponent: View {
     }
 
     // MARK: - Body
-
+    
     public var body: some View {
-        AsyncImage(
-            url: url,
-            transaction: Transaction(animation: .easeInOut(duration: 0.2))
-        ) { phase in
-            content(for: phase)
-        }
-        .id(reloadID)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        content
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .task(id: "\(url?.absoluteString ?? "")-\(reloadID)") {
+                loader.load(url: url)
+            }
+            .onDisappear { loader.cancel() }
     }
 
     // MARK: - Phases
 
     @ViewBuilder
-    private func content(for phase: AsyncImagePhase) -> some View {
-        switch phase {
+    private var content: some View {
+        switch loader.phase {
         case .empty:
             emptyView
-        case .success(let image):
-            image
+        case .success(let uiImage):
+            Image(uiImage: uiImage)
                 .resizable()
         case .failure(let error):
             errorView(error: error)
-        @unknown default:
-            errorView(error: nil)
         }
     }
 
@@ -110,7 +108,7 @@ public struct ImageComponent: View {
 // MARK: - Previews
 
 #Preview("Success") {
-    ImageComponent(
+    ImageComponentView(
         url: URL(string: "https://picsum.photos/seed/goodcorner/400/400")
     )
     .frame(width: 200, height: 200)
@@ -118,7 +116,7 @@ public struct ImageComponent: View {
 }
 
 #Preview("Failure") {
-    ImageComponent(
+    ImageComponentView(
         url: URL(string: "https://this-url-does-not-resolve.invalid/image.jpg")
     )
     .frame(width: 200, height: 200)
@@ -126,7 +124,7 @@ public struct ImageComponent: View {
 }
 
 #Preview("Nil URL") {
-    ImageComponent(url: nil)
+    ImageComponentView(url: nil)
         .frame(width: 200, height: 200)
         .padding()
 }

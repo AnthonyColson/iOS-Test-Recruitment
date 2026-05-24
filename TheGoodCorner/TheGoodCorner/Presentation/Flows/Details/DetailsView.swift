@@ -48,7 +48,7 @@ struct DetailsView: View {
     // MARK: - Hero image
 
     private var heroImage: some View {
-        ImageComponent(
+        ImageComponentView(
             url: viewModel.imageURL,
             cornerRadius: BorderRadius.s
         )

@@ -10,7 +10,6 @@ import Foundation
 @testable import TheGoodCorner
 
 @Suite("DashboardViewModelTests")
-@MainActor
 final class DashboardViewModelTests {
 
     private var sut: DashboardViewModel!
@@ -23,6 +22,7 @@ final class DashboardViewModelTests {
 
     // MARK: - Initial state
 
+    @MainActor
     @Test func initialStateIsLoadingAndEmpty() {
         // Then
         #expect(sut.categoriesState == .loading)
@@ -35,13 +35,14 @@ final class DashboardViewModelTests {
 
     // MARK: - onAppear
 
+    @MainActor
     @Test(arguments: [
         (false, false, DashboardViewModel.CategoriesState.success, DashboardViewModel.ListingState.success),
         (true,  false, .error,   .success),
         (false, true,  .success, .error),
         (true,  true,  .error,   .error),
     ])
-    func onAppearTransitionsStatesAccordingToInteractorOutcomes(
+    func onAppearTransitionsStatesAccordingToOutcomes(
         categoriesFail: Bool,
         listingsFail: Bool,
         expectedCategoriesState: DashboardViewModel.CategoriesState,
@@ -54,9 +55,9 @@ final class DashboardViewModelTests {
             interactorSpy.getCategoriesResponse = [10: "Meuble"]
         }
         if listingsFail {
-            interactorSpy.getListingsError = NetworkError.APIResponse.unexpected
+            interactorSpy.thrownError = NetworkError.APIResponse.unexpected
         } else {
-            interactorSpy.getListingsResponse = .mocked(hasMore: false)
+            interactorSpy.stubbedItems = [.mocked(id: 1, categoryID: 10)]
         }
 
         // When
@@ -67,16 +68,14 @@ final class DashboardViewModelTests {
         #expect(sut.listingState == expectedListingState)
     }
 
-    @Test func onAppearMapsListingsToCardItemsAndResolvesCategoryName() async {
+    @MainActor
+    @Test func onAppearMapsItemsToCardItemsAndResolvesCategoryName() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble", 20: "Sport"]
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: false,
-            items: [
-                .mocked(id: 1, categoryID: 10, title: "Chair"),
-                .mocked(id: 2, categoryID: 20, title: "Bike")
-            ]
-        )
+        interactorSpy.stubbedItems = [
+            .mocked(id: 1, categoryID: 10, title: "Chair"),
+            .mocked(id: 2, categoryID: 20, title: "Bike")
+        ]
 
         // When
         await sut.onAppear()
@@ -87,24 +86,25 @@ final class DashboardViewModelTests {
         #expect(sut.listingCardItems.first { $0.id == 2 }?.category == "Sport")
     }
 
+    @MainActor
     @Test func onAppearIsIdempotentWhenItemsAlreadyLoaded() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [.mocked()])
+        interactorSpy.stubbedItems = [.mocked()]
         await sut.onAppear()
-        let initialCount = sut.listingCardItems.count
+        let initialLoadEnoughCount = interactorSpy.loadEnoughCallCount
 
-        // When
         await sut.onAppear()
 
         // Then
-        #expect(sut.listingCardItems.count == initialCount)
+        #expect(interactorSpy.loadEnoughCallCount == initialLoadEnoughCount)
     }
 
+    @MainActor
     @Test func onAppearWithNoItemsTransitionsListingToEmpty() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+        interactorSpy.stubbedItems = []
 
         // When
         await sut.onAppear()
@@ -116,10 +116,11 @@ final class DashboardViewModelTests {
 
     // MARK: - selectCategory
 
-    @Test func selectCategoryStoresTheCategory() async {
+    @MainActor
+    @Test func selectCategoryStoresTheCategoryAndResetsInteractor() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+        interactorSpy.stubbedItems = []
         let category = CategoriesElement(id: 10, name: "Meuble")
 
         // When
@@ -127,12 +128,15 @@ final class DashboardViewModelTests {
 
         // Then
         #expect(sut.selectedCategory == category)
+        #expect(interactorSpy.lastResetCategoryID == 10)
+        #expect(interactorSpy.loadEnoughCallCount == 1)
     }
 
+    @MainActor
     @Test func selectCategoryTwiceTogglesItOff() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [])
+        interactorSpy.stubbedItems = []
         let category = CategoriesElement(id: 10, name: "Meuble")
 
         // When
@@ -141,97 +145,55 @@ final class DashboardViewModelTests {
 
         // Then
         #expect(sut.selectedCategory == nil)
-    }
-
-    @Test func selectCategoryKeepsOnlyItemsMatchingTheCategory() async {
-        // Given
-        interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: false,
-            items: [
-                .mocked(id: 1, categoryID: 10),
-                .mocked(id: 2, categoryID: 10),
-                .mocked(id: 3, categoryID: 99),
-                .mocked(id: 4, categoryID: 99)
-            ]
-        )
-
-        // When
-        await sut.selectCategory(CategoriesElement(id: 10, name: "Meuble"))
-
-        // Then
-        #expect(sut.listingCardItems.count == 2)
-        #expect(sut.listingCardItems.allSatisfy { [1, 2].contains($0.id) })
-    }
-
-    @Test func selectCategoryResetsThePreviousResults() async {
-        // Given — initial load with 3 items in category 10
-        interactorSpy.getCategoriesResponse = [10: "Meuble", 20: "Sport"]
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: false,
-            items: (1...3).map { .mocked(id: $0, categoryID: 10) }
-        )
-        await sut.onAppear()
-        #expect(sut.listingCardItems.count == 3)
-
-        // When
-        await sut.selectCategory(CategoriesElement(id: 20, name: "Sport"))
-
-        // Then
-        #expect(sut.listingCardItems.isEmpty)
-        #expect(sut.listingState == .empty)
+        // The last reset was called with no categoryID (filter cleared).
+        #expect(interactorSpy.lastResetCategoryID == .some(nil))
     }
 
     // MARK: - loadNextPage
 
-    @Test func loadNextPageAppendsNewItems() async {
+    @MainActor
+    @Test func loadNextPageAppendsNewItemsViaInteractor() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: true,
-            items: (1...5).map { .mocked(id: $0, categoryID: 10) }
-        )
+        interactorSpy.stubbedItems = (1...5).map { ListingsItem.mocked(id: $0, categoryID: 10) }
         await sut.onAppear()
         let initialCount = sut.listingCardItems.count
 
         // When
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: false,
-            items: (100...105).map { .mocked(id: $0, categoryID: 10) }
-        )
+        interactorSpy.stubbedItems = (1...10).map { ListingsItem.mocked(id: $0, categoryID: 10) }
         await sut.loadNextPage()
 
         // Then
         #expect(sut.listingCardItems.count > initialCount)
+        #expect(interactorSpy.loadNextCallCount == 1)
     }
 
-    @Test func loadNextPageIsNoOpWhenNoMorePages() async {
+    @MainActor
+    @Test func loadNextPageIsNoOpWhenInteractorHasNoMore() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(hasMore: false, items: [.mocked()])
+        interactorSpy.stubbedItems = [.mocked()]
         await sut.onAppear()
-        let countAfterFirstLoad = sut.listingCardItems.count
+        interactorSpy.hasMore = false
+        let initialLoadNextCount = interactorSpy.loadNextCallCount
 
         // When
         await sut.loadNextPage()
 
         // Then
-        #expect(sut.listingCardItems.count == countAfterFirstLoad)
+        #expect(interactorSpy.loadNextCallCount == initialLoadNextCount)
     }
 
+    @MainActor
     @Test func loadNextPageSetsErrorStateOnFailure() async {
         // Given
         interactorSpy.getCategoriesResponse = [10: "Meuble"]
-        interactorSpy.getListingsResponse = .mocked(
-            hasMore: true,
-            items: (1...3).map { .mocked(id: $0, categoryID: 10) }
-        )
+        interactorSpy.stubbedItems = (1...3).map { ListingsItem.mocked(id: $0, categoryID: 10) }
         await sut.onAppear()
         let countAfterFirstLoad = sut.listingCardItems.count
 
         // When
-        interactorSpy.getListingsResponse = nil
-        interactorSpy.getListingsError = NetworkError.APIResponse.unexpected
+        interactorSpy.thrownError = NetworkError.APIResponse.unexpected
         await sut.loadNextPage()
 
         // Then
