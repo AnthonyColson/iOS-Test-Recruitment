@@ -33,26 +33,20 @@ final class DashboardViewModel: ObservableObject {
     @Published private(set) var selectedCategory: CategoriesElement?
     @Published private(set) var listingCardItems: [ListingCardIViewModel] = []
     @Published private(set) var isLoadingMore: Bool = false
-    
+
     @Published private(set) var categoriesState: CategoriesState = .loading
     @Published private(set) var listingState: ListingState = .loading
-    
-    @Published var searchText: String = String()
-    @Published var debouncedText = String()
+
+    @Published var searchText: String = ""
+    @Published var debouncedText: String = ""
 
     // MARK: - Configuration
 
-    /// Number of items fetched per server call.
-    private let itemsPerPage = 10
-    /// When a category is selected, target this many matching items before stopping.
-    private let minItemsWhenFiltered = 10
-    /// Safety cap to prevent unbounded pagination on a single user action.
-    private var maxPageFetchPerLoad = 100
+    /// Default number of items targeted on the initial load and on filter changes.
+    private let minItemCount = 10
 
     // MARK: - Private state
 
-    private var currentPage = 0
-    private var hasMore = true
     private var subscriptions = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -63,118 +57,93 @@ final class DashboardViewModel: ObservableObject {
 
     // MARK: - Public intents
 
-    /// Initial load when the dashboard appear
+    /// Initial load when the dashboard appears. Idempotent — already-loaded
+    /// items are kept (e.g. on returning from the details screen).
     @MainActor
     func onAppear() async {
-        $searchText
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] newValue in
-                self?.debouncedText = newValue
-            } )
-            .store(in: &subscriptions)
-        
+        bindSearchDebounce()
         guard listingCardItems.isEmpty else { return }
         await loadCategories()
-        await fillUntilEnoughItems(target: itemsPerPage)
-    }
-    
-    func searchItemsFromText() async {
-        resetPagination()
-        maxPageFetchPerLoad = 100
-        
-        await fillUntilEnoughItems(target: itemsPerPage)
+        await reloadListings()
     }
 
-    /// Reset pagination properties and set or unset selectedCategory than load enough items
+    /// Tap on a category chip. Toggles the filter and reloads.
     @MainActor
     func selectCategory(_ category: CategoriesElement) async {
-        resetPagination()
-        
         if selectedCategory?.id == category.id {
             selectedCategory = nil
         } else {
             selectedCategory = category
         }
-
-        await self.fillUntilEnoughItems(target: self.minItemsWhenFiltered)
+        await reloadListings()
     }
 
-    /// Triggered by scroll position approaching the end of the list.
+    /// Called after the debounced search text changes.
+    @MainActor
+    func searchItemsFromText() async {
+        await reloadListings()
+    }
+
+    /// Triggered by scroll-position approaching the bottom.
     @MainActor
     func loadNextPage() async {
-        guard !isLoadingMore, hasMore else { return }
-        await fillUntilEnoughItems(target: displayedItemCount + itemsPerPage)
+        guard !isLoadingMore, interactor.hasMore else { return }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let items = try await interactor.loadNextListings()
+            updateListCardItems(items)
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            // Task cancelled
+        }  catch {
+            listingState = .error
+        }
     }
 
-    /// Manually retry after an error.
+    /// Manual retry after an error.
     @MainActor
     func retry() async {
         if categoriesState == .error {
             await loadCategories()
         }
-        await fillUntilEnoughItems(target: itemsPerPage)
+        await reloadListings()
     }
 
-    // MARK: - Derived state
-
-    /// Number of items currently shown for a given category to the user.
-    var displayedItemCount: Int {
-        guard let selectedCategory else { return listingCardItems.count }
-        return listingCardItems.filter { $0.category == selectedCategory.name }.count
-    }
-
-    // MARK: - Internal pagination loop
-
-    /// Keeps fetching pages until any of the stop conditions is met:
-    /// - we have at least `target` items matching the current filter
-    /// - the server has no more pages (`hasMore == false`)
-    /// - the safety cap is reached
-    /// - the task is cancelled (e.g. another `selectCategory` was triggered)
-    /// - a fetch errors out
-    @MainActor
-    private func fillUntilEnoughItems(target: Int) async {
-        var iterationsLeft = maxPageFetchPerLoad
-
-        while displayedItemCount < target && hasMore && iterationsLeft > 0 {
-            guard !Task.isCancelled else { return }
-            iterationsLeft -= 1
-            await fetchNextPage()
-            if listingState == .error { return }
-        }
-    }
+    // MARK: - Private
 
     @MainActor
-    private func fetchNextPage() async {
-        isLoadingMore = true
-        defer { isLoadingMore = false }
+    private func reloadListings() async {
+        listingState = .loading
+
+        interactor.resetListings(
+            categoryID: selectedCategory?.id,
+            query: debouncedText.isEmpty ? nil : debouncedText
+        )
 
         do {
-            currentPage += 1
-            let page = try await interactor.getListings(pagination: (page: currentPage, limit: itemsPerPage), query: debouncedText.isEmpty ? nil : debouncedText)
-            maxPageFetchPerLoad = page.total / page.limit
-            hasMore = page.hasMore
-            if let selectedCategory {
-                let filteredList = page.items.filter { $0.categoryID == selectedCategory.id }
-                appendItems(from: filteredList)
-            } else {
-                appendItems(from: page.items)
-            }
-            listingState = listingCardItems.isEmpty ? .empty : .success
-        } catch is CancellationError {
-            //currentPage -= 1
+            let items = try await interactor.loadEnoughListings(minItems: minItemCount)
+            updateListCardItems(items)
         } catch {
-            currentPage -= 1
             listingState = .error
         }
     }
-    
-    private func resetPagination() {
-        hasMore = true
-        currentPage = 0
-        listingCardItems = []
+
+    private func updateListCardItems(_ items: [ListingsItem]) {
+        listingCardItems = items.map { elem in
+            ListingCardIViewModel(
+                id: elem.id,
+                imagesURL: elem.imagesURL,
+                title: elem.title,
+                description: elem.description,
+                price: elem.price,
+                category: allCategories[elem.categoryID],
+                isUrgent: elem.isUrgent
+            )
+        }
+        listingState = listingCardItems.isEmpty ? .empty : .success
     }
-    
-    /// load of categories return as dict
+
     @MainActor
     private func loadCategories() async {
         categoriesState = .loading
@@ -186,19 +155,13 @@ final class DashboardViewModel: ObservableObject {
         }
     }
 
-    @MainActor
-    private func appendItems(from listingItems: [ListingsItem]) {
-        let newCards = listingItems.map { elem in
-            ListingCardIViewModel(
-                id: elem.id,
-                imagesURL: elem.imagesURL,
-                title: elem.title,
-                description: elem.description,
-                price: elem.price,
-                category: allCategories[elem.categoryID],
-                isUrgent: elem.isUrgent
-            )
-        }
-        listingCardItems.appendUnique(contentsOf: newCards)
+    private func bindSearchDebounce() {
+        guard subscriptions.isEmpty else { return }
+        $searchText
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .sink { [weak self] newValue in
+                self?.debouncedText = newValue
+            }
+            .store(in: &subscriptions)
     }
 }

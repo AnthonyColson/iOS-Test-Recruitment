@@ -42,12 +42,17 @@ struct ListingsItemDTO: Decodable {
 // MARK: - ImagesURLDTO
 struct ImagesURLDTO: Decodable {
     let small, thumb: String
-    
+
     enum CodingKeys: String, CodingKey {
            case small = "small"
            case thumb = "thumb"
        }
-    
+
+    init(small: String, thumb: String) {
+        self.small = small
+        self.thumb = thumb
+    }
+
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let smallPath = try c.decodeIfPresent(String.self, forKey: .small)

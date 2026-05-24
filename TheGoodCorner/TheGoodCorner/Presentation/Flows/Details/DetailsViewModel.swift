@@ -7,7 +7,9 @@
 
 import Foundation
 
-final class DetailsViewModel {
+/// Use struct instead of final class with ObservableObject because this viewModel does not containt any reactivity properties.
+/// For futur evoltution migrate to final class with ObservableObject if necessary
+struct DetailsViewModel {
 
     // MARK: - Inputs
 

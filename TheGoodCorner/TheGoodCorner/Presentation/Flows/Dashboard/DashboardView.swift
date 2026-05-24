@@ -12,14 +12,23 @@ struct DashboardView: View {
 
     var body: some View {
         VStack(spacing: Spacing.l) {
-            TextField(String(), text: $viewModel.searchText)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, Spacing.m)
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .frame(width: 20, height: 20)
+                TextField(String(), text: $viewModel.searchText)
+                    .textFieldStyle(.roundedBorder)
+                    
+            }
+            .padding(.horizontal, Spacing.m)
             categoriesList
             gridView
         }
-        .task { [weak viewModel] in
-            await viewModel?.onAppear()
+        .onAppear { [weak viewModel] in
+            currentReloadTask?.cancel()
+            
+            currentReloadTask = Task {
+                await viewModel?.onAppear()
+            }
         }
         .onChange(of: viewModel.debouncedText) { [weak viewModel] _ in
             guard let viewModel else { return }
@@ -83,7 +92,9 @@ struct DashboardView: View {
                                     .font(Typo.title1)
                             }
                             .onTapGesture { [weak viewModel] in
-                                Task {
+                                currentReloadTask?.cancel()
+                                
+                                currentReloadTask = Task {
                                     await viewModel?.selectCategory(CategoriesElement(id: key, name: value))
                                 }
                             }
