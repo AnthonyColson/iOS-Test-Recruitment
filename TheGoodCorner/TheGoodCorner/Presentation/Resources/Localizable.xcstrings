@@ -1,6 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "An iPhone" : {
+      "comment" : "placeholder for searchfield",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un iPhone 12"
+          }
+        }
+      }
+    },
     "Atomic elements showcase" : {
 
     },
@@ -76,17 +88,6 @@
     "Key" : {
       "extractionState" : "manual"
     },
-    "Not selected" : {
-      "comment" : "Accessibility value announced for a non-selected category chip.",
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non sélectionné"
-          }
-        }
-      }
-    },
     "No image available" : {
       "comment" : "Accessibility label for the empty/placeholder state of ImageComponent.",
       "localizations" : {
@@ -94,6 +95,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune image disponible"
+          }
+        }
+      }
+    },
+    "Not selected" : {
+      "comment" : "Accessibility value announced for a non-selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non sélectionné"
           }
         }
       }
@@ -142,6 +154,29 @@
         }
       }
     },
+    "Search your object" : {
+      "comment" : "Accessibility hint for searchfield",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher votre objet"
+          }
+        }
+      }
+    },
+    "Selected" : {
+      "comment" : "Accessibility value announced for a selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionné"
+          }
+        }
+      }
+    },
     "The list is empty" : {
       "comment" : "For Emptty state on listing",
       "extractionState" : "manual",
@@ -156,17 +191,6 @@
     },
     "The quick brown fox" : {
 
-    },
-    "Selected" : {
-      "comment" : "Accessibility value announced for a selected category chip.",
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sélectionné"
-          }
-        }
-      }
     },
     "There is an error on categories" : {
       "comment" : "Error message when categories cannot be loaded.",

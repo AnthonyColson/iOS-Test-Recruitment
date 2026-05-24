@@ -9,36 +9,40 @@ import Combine
 import Foundation
 
 final class DashboardViewModel: ObservableObject {
-
+    
     enum CategoriesState {
         case loading
         case success
         case error
     }
-
+    
     enum ListingState {
         case empty
         case loading
         case success
         case error
     }
-
+    
     // MARK: - Dependencies
-
+    
     private let interactor: any ListingsInteractor
-
+    
     // MARK: - Published state
-
+    
     @Published private(set) var allCategories: Categories = [:]
     @Published private(set) var selectedCategory: CategoriesElement?
     @Published private(set) var listingCardItems: [ListingCardIViewModel] = []
     @Published private(set) var isLoadingMore: Bool = false
-
+    
     @Published private(set) var categoriesState: CategoriesState = .loading
     @Published private(set) var listingState: ListingState = .loading
-
+    
     @Published var searchText: String = ""
     @Published var debouncedText: String = ""
+    
+    var hasMore: Bool {
+        interactor.hasMore
+    }
 
     // MARK: - Configuration
 

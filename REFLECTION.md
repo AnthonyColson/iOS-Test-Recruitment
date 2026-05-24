@@ -63,13 +63,17 @@ Handles view logic and business logic. It contains:
 
 ## Specific technical choices
 
-- I decided to use a LazyVGrid to get a two-column design. I know a List would be better for recycling off-screen rows, but in this app the list will never hold more than a few hundred items, so I think it's an acceptable trade-off.
+- First I decided to use a LazyVGrid to get a two-column design. But I know a List would be better for recycling off-screen rows, so in the end I used a list with a custom stride.
 
 - I implemented a custom AsyncImage to cache images inside ImageComponent. I would have preferred to rely on the native one, but I couldn't find a way to plug image caching into it.
 
 ---
 
 ## Testing Strategy
+
+I develop an design showcase to test accessibility with the accessibility inspector (constrat, dynamic type, voice over)
+
+I used instruments to detect possible hang or memory leak
 
 I decided to use **Swift Testing**, the most readable, simple, and concise option.
 

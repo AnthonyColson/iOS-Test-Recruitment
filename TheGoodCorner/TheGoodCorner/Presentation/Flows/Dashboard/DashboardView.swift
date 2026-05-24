@@ -12,24 +12,18 @@ struct DashboardView: View {
 
     var body: some View {
         VStack(spacing: Spacing.l) {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .frame(width: 20, height: 20)
-                TextField(String(), text: $viewModel.searchText)
-                    .textFieldStyle(.roundedBorder)
-                    
-            }
-            .padding(.horizontal, Spacing.m)
+            searchfield
             categoriesList
             gridView
         }
-        .onAppear { [weak viewModel] in
+        .onAppear {
             currentReloadTask?.cancel()
             
             currentReloadTask = Task {
-                await viewModel?.onAppear()
+                await viewModel.onAppear()
             }
         }
+        .onDisappear { currentReloadTask?.cancel() }
         .onChange(of: viewModel.debouncedText) { [weak viewModel] _ in
             guard let viewModel else { return }
             
@@ -51,6 +45,21 @@ struct DashboardView: View {
             }
 #endif
         }
+    }
+    
+    var searchfield: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .frame(width: 20, height: 20)
+                .accessibilityHidden(true)
+            TextField("An iPhone", text: $viewModel.searchText)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityHint("Search your object")
+                .accessibilityAddTraits(.isSearchField)
+                
+        }
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
+        .padding(.horizontal, Spacing.m)
     }
     
     @ViewBuilder
@@ -91,11 +100,11 @@ struct DashboardView: View {
                                 Text(value)
                                     .font(Typo.title1)
                             }
-                            .onTapGesture { [weak viewModel] in
+                            .onTapGesture {
                                 currentReloadTask?.cancel()
                                 
                                 currentReloadTask = Task {
-                                    await viewModel?.selectCategory(CategoriesElement(id: key, name: value))
+                                    await viewModel.selectCategory(CategoriesElement(id: key, name: value))
                                 }
                             }
                     }
@@ -112,8 +121,8 @@ struct DashboardView: View {
                 Text("Retry")
                     .font(Typo.callout)
                     .onTapGesture {
-                        Task { [weak viewModel] in
-                            await viewModel?.retry()
+                        Task {
+                            await viewModel.retry()
                         }
                     }
             }
@@ -138,41 +147,51 @@ struct DashboardView: View {
                 Spacer()
             }
         case .success:
-            ScrollView {
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: Spacing.m),
-                        GridItem(.flexible(), spacing: Spacing.m)
-                    ],
-                    spacing: Spacing.m
-                ) {
-                    ForEach(Array(viewModel.listingCardItems.enumerated()), id: \.element.id) { index, item in
-                        ListingCardComponent(item: item)
-                            .onTapGesture {
-                                router.navigate(to: .details(item: item))
-                            }
-                            .onAppear { [weak viewModel] in
-                                guard let viewModel else { return }
-                                if index % 2 == 0, index >= viewModel.listingCardItems.count - 4 {
-                                    currentReloadTask?.cancel()
-                                    
-                                    currentReloadTask = Task {
-                                        await viewModel.loadNextPage()
+            VStack {
+                List {
+                    ForEach(Array(stride(from: 0, to: viewModel.listingCardItems.count, by: 2)), id: \.self) { index in
+                        HStack {
+                            ListingCardComponent(item: viewModel.listingCardItems[index])
+                                .onTapGesture {
+                                    router.navigate(to: .details(item: viewModel.listingCardItems[index]))
+                                }
+                            if index + 1 < viewModel.listingCardItems.count {
+                                ListingCardComponent(item: viewModel.listingCardItems[index + 1])
+                                    .onTapGesture {
+                                        router.navigate(to: .details(item: viewModel.listingCardItems[index + 1]))
                                     }
+                            } else {
+                                Color.clear  // garde l'alignement quand le nombre est impair
+                            }
+                        }
+                        .onAppear {
+                            if index >= viewModel.listingCardItems.count - 4 {
+                                currentReloadTask?.cancel()
+                                
+                                currentReloadTask = Task {
+                                    await viewModel.loadNextPage()
                                 }
                             }
+                        }
+                        .listRowSeparator(.hidden)
                     }
+                    
+                    Text("End of list")
+                        .font(Typo.callout)
+                        .padding(.top, Spacing.m)
+                        .listRowSeparator(.hidden)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .padding(.horizontal, Spacing.m)
-                
-                Text("End of list")
-                    .font(Typo.callout)
-                    .padding(.top, Spacing.m)
-                
-                Spacer()
+                .listStyle(.plain)
             }
         case .error:
             VStack(alignment: .center) {
+                Spacer()
+                
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    .accessibilityHidden(true)
                 
                 Spacer()
                 
@@ -182,8 +201,8 @@ struct DashboardView: View {
                 Text("Retry")
                     .font(Typo.callout)
                     .onTapGesture {
-                        Task { [weak viewModel] in
-                            await viewModel?.retry()
+                        Task {
+                            await viewModel.retry()
                         }
                     }
                 
