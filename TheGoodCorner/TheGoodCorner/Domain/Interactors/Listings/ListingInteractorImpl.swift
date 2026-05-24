@@ -23,6 +23,7 @@ final class ListingInteractorImpl: ListingsInteractor {
     private(set) var hasMore: Bool = true
 
     private var items: [ListingsItem] = []
+    private var seenIDs: Set<Int> = []
     private var currentPage = 0
     private var categoryID: Int?
     private var query: String?
@@ -52,6 +53,7 @@ final class ListingInteractorImpl: ListingsInteractor {
 
     func resetListings(categoryID: Int?, query: String?) {
         items = []
+        seenIDs = []
         hasMore = true
         currentPage = 0
         safetyCap = 100
@@ -99,7 +101,9 @@ final class ListingInteractorImpl: ListingsInteractor {
                 filtered = page.items
             }
 
-            items.appendUnique(contentsOf: filtered)
+            for item in filtered where seenIDs.insert(item.id).inserted {
+                items.append(item)
+            }
         } catch {
             currentPage -= 1
             throw error

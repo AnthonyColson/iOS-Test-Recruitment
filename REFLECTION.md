@@ -61,6 +61,12 @@ Handles view logic and business logic. It contains:
 - Helpers
 - The ViewModel **factory** that inject all dependencies
 
+## Specific technical choices
+
+- I decided to use a LazyVGrid to get a two-column design. I know a List would be better for recycling off-screen rows, but in this app the list will never hold more than a few hundred items, so I think it's an acceptable trade-off.
+
+- I implemented a custom AsyncImage to cache images inside ImageComponent. I would have preferred to rely on the native one, but I couldn't find a way to plug image caching into it.
+
 ---
 
 ## Testing Strategy

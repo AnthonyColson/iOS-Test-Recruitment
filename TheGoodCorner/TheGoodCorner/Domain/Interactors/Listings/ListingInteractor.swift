@@ -11,8 +11,8 @@ import Foundation
 ///
 /// Exposes a stateless API for categories and a stateful API for paginated
 /// listings. The pagination context (current page, filter, query) is owned
-/// by the interactor — callers don't track it. Use
-/// `resetListings(categoryID:query:)` to set the filter, then iterate with
+/// by the interactor.
+/// Use `resetListings(categoryID:query:)` to set the filter, then iterate with
 /// `loadEnoughListings(minItems:)` or `loadNextListings()`.
 protocol ListingsInteractor: AnyObject {
 

@@ -29,7 +29,7 @@ public struct ListingCardComponent: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
-            ImageComponent(
+            ImageComponentView(
                 url: item.imagesURL.small,
                 cornerRadius: BorderRadius.s
             )
