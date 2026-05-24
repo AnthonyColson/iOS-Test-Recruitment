@@ -1,0 +1,252 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "An iPhone" : {
+      "comment" : "placeholder for searchfield",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un iPhone 12"
+          }
+        }
+      }
+    },
+    "Atomic elements showcase" : {
+
+    },
+    "Category: %@" : {
+      "comment" : "Category label on a listing card. %@ is the category name.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégorie : %@"
+          }
+        }
+      }
+    },
+    "Description" : {
+      "comment" : "Section header on the details page introducing the listing description.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        }
+      }
+    },
+    "Design System" : {
+
+    },
+    "Double tap to filter listings by this category" : {
+      "comment" : "Accessibility hint on a category chip — read by VoiceOver after the label.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez deux fois pour filtrer les annonces par cette catégorie"
+          }
+        }
+      }
+    },
+    "End of list" : {
+      "comment" : "Shown at the bottom of the listings grid when there is no more content to load.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin de la liste"
+          }
+        }
+      }
+    },
+    "Image failed to load" : {
+      "comment" : "Accessibility label when the AsyncImage fails without a specific error.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du chargement de l'image"
+          }
+        }
+      }
+    },
+    "Image failed to load: %@" : {
+      "comment" : "Accessibility label when the AsyncImage fails. %@ is the error description.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du chargement de l'image : %@"
+          }
+        }
+      }
+    },
+    "Key" : {
+      "extractionState" : "manual"
+    },
+    "No image available" : {
+      "comment" : "Accessibility label for the empty/placeholder state of ImageComponent.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune image disponible"
+          }
+        }
+      }
+    },
+    "Not selected" : {
+      "comment" : "Accessibility value announced for a non-selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non sélectionné"
+          }
+        }
+      }
+    },
+    "Open design system showcase" : {
+      "comment" : "Accessibility label for the debug-only toolbar button that opens the design system showcase.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir l'aperçu du design system"
+          }
+        }
+      }
+    },
+    "Page Detail" : {
+      "comment" : "Navigation bar title of the listing details page.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détail de l'annonce"
+          }
+        }
+      }
+    },
+    "Retry" : {
+      "comment" : "Button label to retry a failed action (image load, network call…).",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        }
+      }
+    },
+    "Retry loading image" : {
+      "comment" : "Accessibility label for the retry button on a failed image.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer le chargement de l'image"
+          }
+        }
+      }
+    },
+    "Search your object" : {
+      "comment" : "Accessibility hint for searchfield",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher votre objet"
+          }
+        }
+      }
+    },
+    "Selected" : {
+      "comment" : "Accessibility value announced for a selected category chip.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionné"
+          }
+        }
+      }
+    },
+    "The list is empty" : {
+      "comment" : "For Emptty state on listing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La liste est vide"
+          }
+        }
+      }
+    },
+    "The quick brown fox" : {
+
+    },
+    "There is an error on categories" : {
+      "comment" : "Error message when categories cannot be loaded.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue lors du chargement des catégories"
+          }
+        }
+      }
+    },
+    "There is an error on listing" : {
+      "comment" : "Error message when listings cannot be loaded.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue lors du chargement des annonces"
+          }
+        }
+      }
+    },
+    "Unable to load image" : {
+      "comment" : "Visible message shown on top of the failed-image placeholder.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de charger l'image"
+          }
+        }
+      }
+    },
+    "Urgent" : {
+      "comment" : "Accessibility label / spoken form of the urgent badge.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urgent"
+          }
+        }
+      }
+    },
+    "URGENT" : {
+      "comment" : "Badge shown on urgent listings.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URGENT"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
