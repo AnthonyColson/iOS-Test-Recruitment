@@ -96,6 +96,7 @@ Used **Claude Code** for specific, trivial requests:
 - Creating the atomic elements of the design system
 - Creating localized text
 - Mocks
+- Create a debug showcase
 
 ### A More Complex Example
 
