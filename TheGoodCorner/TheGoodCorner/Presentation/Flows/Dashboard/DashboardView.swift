@@ -114,19 +114,19 @@ struct DashboardView: View {
             .frame(maxHeight: 40)
 
         case .error:
-            VStack(alignment: .center) {
+            VStack(alignment: .center, spacing: Spacing.s) {
                 Text("There is an error on categories")
+                    .multilineTextAlignment(.center)
                     .font(Typo.callout)
                 
-                Text("Retry")
-                    .font(Typo.callout)
-                    .onTapGesture {
-                        Task {
-                            await viewModel.retry()
-                        }
+                Button("Retry") {
+                    Task {
+                        await viewModel.retry()
                     }
+                }
+                .font(Typo.callout)
+                .buttonStyle(.bordered)
             }
-            .frame(maxHeight: 40)
         }
     }
     
@@ -185,7 +185,7 @@ struct DashboardView: View {
                 .listStyle(.plain)
             }
         case .error:
-            VStack(alignment: .center) {
+            VStack(alignment: .center, spacing: Spacing.l) {
                 Spacer()
                 
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -193,18 +193,18 @@ struct DashboardView: View {
                     .frame(width: 40, height: 40)
                     .accessibilityHidden(true)
                 
-                Spacer()
-                
                 Text("There is an error on listing")
+                    .multilineTextAlignment(.center)
                     .font(Typo.callout)
                 
-                Text("Retry")
-                    .font(Typo.callout)
-                    .onTapGesture {
-                        Task {
-                            await viewModel.retry()
-                        }
+                
+                Button("Retry") {
+                    Task {
+                        await viewModel.retry()
                     }
+                }
+                .font(Typo.callout)
+                .buttonStyle(.bordered)
                 
                 Spacer()
             }
